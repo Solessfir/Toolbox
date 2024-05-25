@@ -22,4 +22,7 @@ public:
 	
 	UFUNCTION(BlueprintPure, Meta = (Keywords = "Screen Viewport Center"), Category = "Toolbox|Misc Library")
 	static FVector2D GetViewportCenter();
+
+	UFUNCTION(BlueprintPure, Meta = (Keywords = "Trace Camera View"), Category = "Toolbox|Misc Library")
+	static void GetTraceVectorsFromCameraViewPoint(const APlayerController* PlayerController, FVector& TraceStart, FVector& TraceEnd, const double StartOffset, const double TraceDistance = 100.0);
 };

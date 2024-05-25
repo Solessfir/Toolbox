@@ -28,3 +28,17 @@ FVector2D UToolboxMiscFunctionLibrary::GetViewportCenter()
 	GEngine->GameViewport->GetViewportSize(ViewportSize);
 	return ViewportSize * 0.5;
 }
+
+void UToolboxMiscFunctionLibrary::GetTraceVectorsFromCameraViewPoint(const APlayerController* PlayerController, FVector& TraceStart, FVector& TraceEnd, const double StartOffset, const double TraceDistance)
+{
+	if (!IsValid(PlayerController) || !PlayerController->PlayerCameraManager)
+	{
+		return;
+	}
+	
+	const FVector& CameraLocation = PlayerController->PlayerCameraManager->GetCameraLocation();
+	const FVector& CameraForwardVector = PlayerController->PlayerCameraManager->GetCameraRotation().Vector();
+
+	TraceStart = CameraLocation + CameraForwardVector * FMath::Max<double>(StartOffset, 1.0);
+	TraceEnd = TraceStart + CameraForwardVector * FMath::Max<double>(TraceDistance, 10.0);
+}
