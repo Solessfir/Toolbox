@@ -1,0 +1,23 @@
+﻿{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Toolbox",
+	"Description": "Toolbox is a versatile plugin providing a comprehensive set of blueprint functions to streamline your Unreal Engine development. Boost productivity and simplify game creation for developers of all levels with essential tools at your fingertips.",
+	"Category": "Utilities",
+	"CreatedBy": "Solessfir",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"CanContainContent": false,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "Toolbox",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
