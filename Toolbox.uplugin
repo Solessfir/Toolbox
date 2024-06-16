@@ -18,6 +18,11 @@
 			"Name": "Toolbox",
 			"Type": "Runtime",
 			"LoadingPhase": "PreDefault"
+		},
+		{
+			"Name": "ToolboxEditor",
+			"Type": "Editor",
+			"LoadingPhase": "PreDefault"
 		}
 	]
 }

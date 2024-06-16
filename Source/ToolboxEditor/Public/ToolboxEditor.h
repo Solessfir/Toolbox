@@ -4,7 +4,7 @@
 
 #include "Modules/ModuleManager.h"
 
-class FToolboxModule final : public IModuleInterface
+class FToolboxEditorModule final : public IModuleInterface
 {
 public:
 	virtual void StartupModule() override;
