@@ -11,18 +11,34 @@ class TOOLBOX_API UToolboxSoftwareFunctionLibrary : public UBlueprintFunctionLib
 	GENERATED_BODY()
 
 public:
+	/**
+	* Returns true if this is the Editor
+	* Note that this is still true when using Play In Editor. You may want to use IsPlayInEditor in that case
+	*/
 	UFUNCTION(BlueprintPure, Meta = (CompactNodeTitle = "Is Editor"), Category = "Toolbox|Software Library")
 	static bool IsInEditor();
 
+	/**
+	* Returns true if this is a Shipping build if the game
+	*/
 	UFUNCTION(BlueprintPure, Meta = (CompactNodeTitle = "Is Shipping"), Category = "Toolbox|Software Library")
 	static bool IsShippingBuild();
-	
-	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject"), Category = "Toolbox|Software Library")
+
+	/**
+	* Returns true if a Game is being played in Editor
+	*/
+	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject", CompactNodeTitle = "Is PIE"), Category = "Toolbox|Software Library")
 	static bool IsPlayInEditor(const UObject* WorldContextObject);
 	
-	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject"), Category = "Toolbox|Software Library")
+	/**
+	* Returns true if this is a Preview World for an Editor tool. Ex. when previewing Mesh or Animation
+	*/
+	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject", CompactNodeTitle = "Is Editor Preview"), Category = "Toolbox|Software Library")
 	static bool IsInEditorPreviewWindow(const UObject* WorldContextObject);
-	
+
+	/**
+	* Returns current Game FPS
+	*/
 	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject", CompactNodeTitle = "FPS"), Category = "Toolbox|Software Library")
 	static int32 GetFPS(const UObject* WorldContextObject);
 
