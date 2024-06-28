@@ -2,6 +2,7 @@
 
 #include "ToolboxSoftwareFunctionLibrary.h"
 #include "HAL/PlatformApplicationMisc.h"
+#include "ToolboxHelpers.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ToolboxSoftwareFunctionLibrary)
 
 bool UToolboxSoftwareFunctionLibrary::IsInEditor()
@@ -20,35 +21,22 @@ bool UToolboxSoftwareFunctionLibrary::IsShippingBuild()
 
 bool UToolboxSoftwareFunctionLibrary::IsPlayInEditor(const UObject* WorldContextObject)
 {
-	if (!WorldContextObject)
+	if (const UWorld* World = ToolboxHelpers::GetWorld(WorldContextObject))
 	{
-		return false;
-	}
-	
-	const UWorld* World = WorldContextObject->GetWorld();
-	if (!World)
-	{
-		return false;
+		return World->IsPlayInEditor();
 	}
 
-	return World->IsPlayInEditor();
+	return false;
 }
 
 bool UToolboxSoftwareFunctionLibrary::IsInEditorPreviewWindow(const UObject* WorldContextObject)
 {
 	#if WITH_EDITOR
-	if (!WorldContextObject)
+	if (const UWorld* World = ToolboxHelpers::GetWorld(WorldContextObject))
 	{
-		return false;
+		return World->WorldType == EWorldType::EditorPreview;
 	}
-
-	const UWorld* World = WorldContextObject->GetWorld();
-	if (!World)
-	{
-		return false;
-	}
-	
-	return World->WorldType == EWorldType::EditorPreview;
+	return false;
 	#else
 	return false;
 	#endif
@@ -56,18 +44,12 @@ bool UToolboxSoftwareFunctionLibrary::IsInEditorPreviewWindow(const UObject* Wor
 
 int32 UToolboxSoftwareFunctionLibrary::GetFPS(const UObject* WorldContextObject)
 {
-	if (!WorldContextObject)
+	if (const UWorld* World = ToolboxHelpers::GetWorld(WorldContextObject))
 	{
-		return 0.f;
-	}
-
-	const UWorld* World = WorldContextObject->GetWorld();
-	if (!World)
-	{
-		return 0.f;
+		return FMath::FloorToInt(1.f / World->GetDeltaSeconds());
 	}
 	
-	return static_cast<int32>(FMath::RoundHalfToEven(1.f / World->GetDeltaSeconds()));
+	return 0.f;
 }
 
 void UToolboxSoftwareFunctionLibrary::SetFrameRateCap(const int32 FrameRateCap)

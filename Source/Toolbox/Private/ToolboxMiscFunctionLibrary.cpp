@@ -1,6 +1,7 @@
 ﻿// Copyright Solessfir. All Rights Reserved.
 
 #include "ToolboxMiscFunctionLibrary.h"
+#include "ToolboxHelpers.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ToolboxMiscFunctionLibrary)
 
 FVector2D UToolboxMiscFunctionLibrary::GetAimOffset(const APawn* Pawn)
@@ -29,8 +30,9 @@ FVector2D UToolboxMiscFunctionLibrary::GetViewportCenter()
 	return ViewportSize * 0.5;
 }
 
-void UToolboxMiscFunctionLibrary::GetTraceVectorsFromCameraViewPoint(const APlayerController* PlayerController, FVector& TraceStart, FVector& TraceEnd, const double StartOffset, const double TraceDistance)
+void UToolboxMiscFunctionLibrary::GetTraceVectorsFromCameraViewPoint(const UObject* WorldContextObject, FVector& TraceStart, FVector& TraceEnd, const double StartOffset, const double TraceDistance)
 {
+	const APlayerController* PlayerController = ToolboxHelpers::GetLocalPlayerController(WorldContextObject);
 	if (!IsValid(PlayerController) || !PlayerController->PlayerCameraManager)
 	{
 		return;
