@@ -42,7 +42,7 @@ public:
 
 	/**
 	* Returns total ACKs sent on this connection
-	* Acknowledgement Packet (ACK) is a way for a Client to acknowledge that they have received a message from the Server
+	* Acknowledgement Packet (ACK) is a way for a Clients to acknowledge that they have received a message from the Server
 	*/
 	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject", ReturnDisplayName = "Total Packets", Keywords = "ACK Size"), Category = "Toolbox|Network Library")
 	static int32 GetAcknowledgedPackets(const UObject* WorldContextObject);
