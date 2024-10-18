@@ -49,7 +49,7 @@ int32 UToolboxSoftwareFunctionLibrary::GetFPS(const UObject* WorldContextObject)
 		return FMath::FloorToInt(1.f / World->GetDeltaSeconds());
 	}
 	
-	return 0.f;
+	return 0;
 }
 
 void UToolboxSoftwareFunctionLibrary::SetFrameRateCap(const int32 FrameRateCap)
