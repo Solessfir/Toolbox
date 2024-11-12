@@ -86,3 +86,43 @@ void UToolboxSoftwareFunctionLibrary::FlashGameOnTaskBar(const bool bBackgroundO
 		GEngine->GameViewport->GetWindow()->DrawAttention(FWindowDrawAttentionParameters(EWindowDrawAttentionRequestType::UntilActivated));
 	}
 }
+
+void UToolboxSoftwareFunctionLibrary::SetWindowMode(const EWindowModeType Mode)
+{
+	if (!GEngine || Mode == EWindowModeType::Invalid)
+	{
+		return;
+	}
+
+	UGameViewportClient* ViewportClient = GEngine->GameViewport;
+	if (!ViewportClient)
+	{
+		return;
+	}
+
+	if (SWindow* Window = ViewportClient->GetWindow().Get())
+	{
+		Window->SetWindowMode(static_cast<EWindowMode::Type>(Mode));
+	}
+}
+
+EWindowModeType UToolboxSoftwareFunctionLibrary::GetWindowMode()
+{
+	if (!GEngine)
+	{
+		return EWindowModeType::Invalid;
+	}
+
+	UGameViewportClient* ViewportClient = GEngine->GameViewport;
+	if (!ViewportClient)
+	{
+		return EWindowModeType::Invalid;
+	}
+
+	if (const SWindow* Window = ViewportClient->GetWindow().Get())
+	{
+		return static_cast<EWindowModeType>(Window->GetWindowMode());
+	}
+
+	return EWindowModeType::Invalid;
+}
