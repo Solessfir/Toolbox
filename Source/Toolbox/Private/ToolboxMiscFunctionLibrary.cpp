@@ -30,6 +30,15 @@ FVector2D UToolboxMiscFunctionLibrary::GetViewportCenter()
 	return ViewportSize * 0.5;
 }
 
+void UToolboxMiscFunctionLibrary::SetViewportViewMode(const EViewModeIndex ViewMode)
+{
+	if (GEngine && GEngine->GameViewport && GEngine->GameViewport->ViewModeIndex != static_cast<int32>(ViewMode))
+	{
+		ApplyViewMode(ViewMode, false, GEngine->GameViewport->EngineShowFlags);
+		GEngine->GameViewport->ViewModeIndex = static_cast<int32>(ViewMode);
+	}
+}
+
 void UToolboxMiscFunctionLibrary::GetTraceVectorsFromCameraViewPoint(const UObject* WorldContextObject, FVector& TraceStart, FVector& TraceEnd, const double StartOffset, const double TraceDistance)
 {
 	const APlayerController* PlayerController = ToolboxHelpers::GetLocalPlayerController(WorldContextObject);

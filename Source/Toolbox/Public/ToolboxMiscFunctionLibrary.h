@@ -23,6 +23,9 @@ public:
 	UFUNCTION(BlueprintPure, Meta = (Keywords = "Screen Viewport Center"), Category = "Toolbox|Misc Library")
 	static FVector2D GetViewportCenter();
 
+	UFUNCTION(BlueprintCallable, Meta = (Keywords = "View Mode"), Category = "Toolbox|Misc Library")
+	static void SetViewportViewMode(const EViewModeIndex ViewMode);
+
 	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject", Keywords = "Trace Camera View"), Category = "Toolbox|Misc Library")
 	static void GetTraceVectorsFromCameraViewPoint(const UObject* WorldContextObject, FVector& TraceStart, FVector& TraceEnd, const double StartOffset, const double TraceDistance = 100.0);
 };
