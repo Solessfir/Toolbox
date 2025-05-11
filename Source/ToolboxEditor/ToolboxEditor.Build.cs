@@ -8,10 +8,15 @@ public class ToolboxEditor : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		
-		PrivateDependencyModuleNames.AddRange(new[]
-		{
+		PrivateDependencyModuleNames.AddRange([
 			"Core",
-			"CoreUObject"
-		});
+			"CoreUObject",
+			"Engine",
+			"UnrealEd",
+			"SlateCore",
+			"KismetCompiler",
+			"BlueprintGraph",
+			"Toolbox"
+		]);
 	}
 }

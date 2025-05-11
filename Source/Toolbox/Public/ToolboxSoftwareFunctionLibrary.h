@@ -55,14 +55,25 @@ public:
 	static int32 GetFPS(const UObject* WorldContextObject);
 
 	/**
-	* Set desired FPS cap. Min 30 FPS
+	* Set the desired FPS cap. Min 30 FPS
 	* @param FrameRateCap Set to 0 for uncapped FPS
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Toolbox|Software Library")
 	static void SetFrameRateCap(const int32 FrameRateCap);
 
+	/**
+	* Returns how many cycles the Thread used
+	* Set once per frame in FViewport::Draw
+	*/
+	UFUNCTION(BlueprintPure, Category = "Toolbox|Software Library")
+	static void GetThreadsTime(float& FrameTime, float& GameThreadTime, float& RenderThreadTime, UPARAM(DisplayName = "RHI Thread Time") float& RHIThreadTime, UPARAM(DisplayName = "GPU Frame Time") float& GPUFrameTime);
+
+	/**
+	* Returns false if a Game has no focus.
+	* For example, Alt + Tabbed.
+	*/
 	UFUNCTION(BlueprintPure, Meta = (Keywords = "GPU Info Video"), Category = "Toolbox|Software Library")
-	static bool IsApplicationInForeground();
+	static bool IsGameInForeground();
 
 	/**
 	* Flashes the game on the Task Bar

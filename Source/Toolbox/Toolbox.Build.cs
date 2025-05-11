@@ -10,13 +10,13 @@ public class Toolbox : ModuleRules
 		
 		PublicDependencyModuleNames.Add("Core");
 		
-		PrivateDependencyModuleNames.AddRange(new[]
-		{
+		PrivateDependencyModuleNames.AddRange([
 			"CoreUObject",
 			"ApplicationCore",
 			"Engine",
 			"RHI",
+			"RenderCore",
 			"SlateCore"
-		});
+		]);
 	}
 }

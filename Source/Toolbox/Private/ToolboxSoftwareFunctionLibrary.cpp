@@ -69,7 +69,20 @@ void UToolboxSoftwareFunctionLibrary::SetFrameRateCap(const int32 FrameRateCap)
 	GEngine->bUseFixedFrameRate = false;
 }
 
-bool UToolboxSoftwareFunctionLibrary::IsApplicationInForeground()
+void UToolboxSoftwareFunctionLibrary::GetThreadsTime(float& FrameTime, float& GameThreadTime, float& RenderThreadTime, float& RHIThreadTime, float& GPUFrameTime)
+{
+	extern uint32 GGameThreadTime;
+	extern uint32 GRenderThreadTime;
+	extern uint32 GRHIThreadTime;
+
+	FrameTime = static_cast<float>((FApp::GetCurrentTime() - FApp::GetLastTime()) * 1000.0);
+	GameThreadTime = FPlatformTime::ToMilliseconds(GGameThreadTime);
+	RenderThreadTime = FPlatformTime::ToMilliseconds(GRenderThreadTime);
+	RHIThreadTime = FPlatformTime::ToMilliseconds(GRHIThreadTime);
+	GPUFrameTime = FPlatformTime::ToMilliseconds(RHIGetGPUFrameCycles());
+}
+
+bool UToolboxSoftwareFunctionLibrary::IsGameInForeground()
 {
 	return FPlatformApplicationMisc::IsThisApplicationForeground();
 }
@@ -81,7 +94,7 @@ void UToolboxSoftwareFunctionLibrary::FlashGameOnTaskBar(const bool bBackgroundO
 		return;
 	}
 
-	if (!bBackgroundOnly || !IsApplicationInForeground())
+	if (!bBackgroundOnly || !IsGameInForeground())
 	{
 		GEngine->GameViewport->GetWindow()->DrawAttention(FWindowDrawAttentionParameters(EWindowDrawAttentionRequestType::UntilActivated));
 	}
