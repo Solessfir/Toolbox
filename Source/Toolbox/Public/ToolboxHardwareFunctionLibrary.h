@@ -13,16 +13,16 @@ struct FGPUInfo
 	FGPUInfo()
 		: ProviderName(FString("None"))
 		, DeviceDescription(FString("None"))
-		, UserDriverVersion(FString("None"))
-		, DriverDate(FString("None"))
+		, UserDriverVersion(0.0)
+		, DriverDate(FDateTime())
 	{
 	}
 
-	explicit FGPUInfo(const FString& InProviderName, const FString& InDeviceDescription, const FString& InUserDriverVersion, const FString& InDriverDate)
+	explicit FGPUInfo(const FString& InProviderName, const FString& InDeviceDescription, const double InUserDriverVersion, const FDateTime& InDriverDate)
 		: ProviderName(InProviderName)
 		, DeviceDescription(InDeviceDescription)
 		, UserDriverVersion(InUserDriverVersion)
-		, DriverDate(InDriverDate)
+		, DriverDate(FDateTime(InDriverDate))
 	{
 	}
 	
@@ -48,10 +48,10 @@ struct FGPUInfo
 	FString DeviceDescription;
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	FString UserDriverVersion;
+	double UserDriverVersion;
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	FString DriverDate;
+	FDateTime DriverDate;
 };
 
 USTRUCT(BlueprintType)
@@ -104,8 +104,20 @@ class TOOLBOX_API UToolboxHardwareFunctionLibrary : public UBlueprintFunctionLib
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintPure, DisplayName = "Get GPU Driver Info", Meta = (Keywords = "GPU Info Video"), Category = "Toolbox|Hardware Library")
-	static FGPUInfo GetGPUDriverInfo();
+	UFUNCTION(BlueprintPure, DisplayName = "Get GPU Info", Meta = (Keywords = "GPU Info Video"), Category = "Toolbox|Hardware Library")
+	static FGPUInfo GetGPUInfo();
+
+	UFUNCTION(BlueprintPure, DisplayName = "Get CPU Info", Meta = (Keywords = "CPU Info"), Category = "Toolbox|Hardware Library")
+	static FString GetCPUInfo();
+
+	/**
+	* Returns RAM info in GB
+	* @param Total Total Physical RAM in GB
+	* @param Used Used Physical RAM in GB
+	* @param Available Available Physical RAM in GB
+	*/
+	UFUNCTION(BlueprintPure, DisplayName = "Get RAM Info", Meta = (Keywords = "RAM Info"), Category = "Toolbox|Hardware Library")
+	static void GetRAMInfo(double& Total, double& Used, double& Available);
 	
 	UFUNCTION(BlueprintPure, Meta = (Keywords = "Resolution Screen"), Category = "Toolbox|Hardware Library")
 	static TArray<FDisplayAdapterScreenData> GetAvailableResolutions();

@@ -4,10 +4,32 @@
 #include "GenericPlatform/GenericPlatformDriver.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ToolboxHardwareFunctionLibrary)
 
-FGPUInfo UToolboxHardwareFunctionLibrary::GetGPUDriverInfo()
+FGPUInfo UToolboxHardwareFunctionLibrary::GetGPUInfo()
 {
 	const FGPUDriverInfo& GPUDriverInfo = FPlatformMisc::GetGPUDriverInfo(GRHIAdapterName, false);
-	return FGPUInfo(GPUDriverInfo.ProviderName, GPUDriverInfo.DeviceDescription, GPUDriverInfo.UserDriverVersion, GPUDriverInfo.DriverDate);
+
+	TArray<FString> DateArray;
+	GPUDriverInfo.DriverDate.ParseIntoArray(DateArray, TEXT("-"));
+
+	const FDateTime DriverDate = DateArray.Num() >= 3
+		? FDateTime(FCString::Atoi(*DateArray[2]), FCString::Atoi(*DateArray[0]), FCString::Atoi(*DateArray[1]))
+		: FDateTime();
+
+	return FGPUInfo(GPUDriverInfo.ProviderName, GPUDriverInfo.DeviceDescription, FCString::Atod(*GPUDriverInfo.UserDriverVersion), DriverDate);
+}
+
+FString UToolboxHardwareFunctionLibrary::GetCPUInfo()
+{
+	return FPlatformMisc::GetCPUBrand();
+}
+
+void UToolboxHardwareFunctionLibrary::GetRAMInfo(double& Total, double& Used, double& Available)
+{
+	const FPlatformMemoryStats MemoryStats = FPlatformMemory::GetStats();
+	constexpr double GiB = 1024.0 * 1024.0 * 1024.0; // Binary: 1,073,741,824 bytes
+	Total = static_cast<double>(MemoryStats.TotalPhysical) / GiB;
+	Used = static_cast<double>(MemoryStats.UsedPhysical) / GiB;
+	Available = static_cast<double>(MemoryStats.AvailablePhysical) / GiB;
 }
 
 TArray<FDisplayAdapterScreenData> UToolboxHardwareFunctionLibrary::GetAvailableResolutions()
@@ -31,14 +53,11 @@ TArray<FDisplayAdapterScreenData> UToolboxHardwareFunctionLibrary::GetAvailableR
 
 FString UToolboxHardwareFunctionLibrary::Conv_GPUInfoToString(const FGPUInfo& InGPUInfo)
 {
-	return FString::Format(TEXT("Provider: {0}\nDevice: {1}\nDriver Version: {2}\nDriver Date: {3}"),
-	TArray<FStringFormatArg>
-	{
-		InGPUInfo.ProviderName,
-		InGPUInfo.DeviceDescription,
-		InGPUInfo.UserDriverVersion,
-		InGPUInfo.DriverDate
-	});
+	return FString::Printf(TEXT("Provider: %s\nDevice: %s\nDriver Version: %.2lf\nDriver Date: %s")
+		, *InGPUInfo.ProviderName
+		, *InGPUInfo.DeviceDescription
+		, InGPUInfo.UserDriverVersion
+		, *InGPUInfo.DriverDate.ToFormattedString(TEXT("%d/%m/%Y")));
 }
 
 FString UToolboxHardwareFunctionLibrary::Conv_DisplayAdapterScreenDataToString(const FDisplayAdapterScreenData& InDisplayAdapterScreenData)

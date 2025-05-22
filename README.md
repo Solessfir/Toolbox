@@ -5,4 +5,4 @@ Toolbox is a versatile plugin providing a comprehensive set of blueprint functio
 Get `Toolbox.zip` from the [releases](https://github.com/Solessfir/Toolbox/releases) and extract it into your project's `Plugins` folder.
 
 ### Screenshots
-![Example Screenshot](https://i.imgur.com/9Cgs105.png)
+![Example Screenshot](https://i.imgur.com/PVLLmLB.png)
