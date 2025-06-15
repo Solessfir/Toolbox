@@ -21,23 +21,23 @@ class TOOLBOX_API UToolboxNetworkFunctionLibrary : public UBlueprintFunctionLibr
 
 public:
 	/** Returns the ping (in milliseconds) */
-	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject", ReturnDisplayName = "Milliseconds", Keywords = "Ping"), Category = "Toolbox|Network Library")
+	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject", ReturnDisplayName = "Milliseconds"), Category = "Toolbox|Network Library")
 	static int32 GetPing(const UObject* WorldContextObject);
 
 	/** Returns the state this connection is in */
-	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject", ReturnDisplayName = "State", Keywords = "Connection"), Category = "Toolbox|Network Library")
+	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject", ReturnDisplayName = "State"), Category = "Toolbox|Network Library")
 	static EToolboxConnectionState GetConnectionState(const UObject* WorldContextObject);
 
 	/** Returns an average loss percentage over the previous stat periods */
-	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject", Keywords = "Packet Loss"), Category = "Toolbox|Network Library")
+	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject"), Category = "Toolbox|Network Library")
 	static void GetPacketLoss(const UObject* WorldContextObject, float& Incoming, float& Outgoing);
 
 	/** Returns Packets sent/received on this connection (per second) */
-	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject", Keywords = "Packet Rate"), Category = "Toolbox|Network Library")
+	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject"), Category = "Toolbox|Network Library")
 	static void GetPacketRate(const UObject* WorldContextObject, int32& Incoming, int32& Outgoing);
 
 	/** Returns Packets Size (in bytes) */
-	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject", Keywords = "Packet Size"), Category = "Toolbox|Network Library")
+	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject"), Category = "Toolbox|Network Library")
 	static void GetPacketSize(const UObject* WorldContextObject, float& Incoming, float& Outgoing);
 
 	/**

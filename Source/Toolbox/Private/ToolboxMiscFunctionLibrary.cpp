@@ -53,3 +53,20 @@ void UToolboxMiscFunctionLibrary::GetTraceVectorsFromCameraViewPoint(const UObje
 	TraceStart = CameraLocation + CameraForwardVector * FMath::Max<double>(StartOffset, 1.0);
 	TraceEnd = TraceStart + CameraForwardVector * FMath::Max<double>(TraceDistance, 10.0);
 }
+
+void UToolboxMiscFunctionLibrary::CalculateOrbitalTransform(const FVector& OrbitalCenter, const float OrbitRadius, const float ElevationAngle, const float AzimuthAngle, FVector& Location, FRotator& Rotation)
+{
+	const float ElevationRad = FMath::DegreesToRadians(ElevationAngle);
+	const float AzimuthRad = FMath::DegreesToRadians(AzimuthAngle);
+
+	const FVector RelativeLocation =
+	{
+		// Convert spherical coordinates (distance + angles) to Cartesian coordinates
+		FMath::Max(OrbitRadius, 1.f) * FMath::Cos(ElevationRad) * FMath::Cos(AzimuthRad),
+		FMath::Max(OrbitRadius, 1.f) * FMath::Cos(ElevationRad) * FMath::Sin(AzimuthRad),
+		FMath::Max(OrbitRadius, 1.f) * FMath::Sin(ElevationRad)
+	};
+
+	Location = OrbitalCenter + RelativeLocation;
+	Rotation = (-RelativeLocation.GetSafeNormal()).Rotation();
+}

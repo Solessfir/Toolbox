@@ -104,10 +104,10 @@ class TOOLBOX_API UToolboxHardwareFunctionLibrary : public UBlueprintFunctionLib
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintPure, DisplayName = "Get GPU Info", Meta = (Keywords = "GPU Info Video"), Category = "Toolbox|Hardware Library")
+	UFUNCTION(BlueprintPure, DisplayName = "Get GPU Info", Meta = (Keywords = "Video"), Category = "Toolbox|Hardware Library")
 	static FGPUInfo GetGPUInfo();
 
-	UFUNCTION(BlueprintPure, DisplayName = "Get CPU Info", Meta = (Keywords = "CPU Info"), Category = "Toolbox|Hardware Library")
+	UFUNCTION(BlueprintPure, DisplayName = "Get CPU Info", Category = "Toolbox|Hardware Library")
 	static FString GetCPUInfo();
 
 	/**
@@ -116,10 +116,10 @@ public:
 	* @param Used Used Physical RAM in GB
 	* @param Available Available Physical RAM in GB
 	*/
-	UFUNCTION(BlueprintPure, DisplayName = "Get RAM Info", Meta = (Keywords = "RAM Info"), Category = "Toolbox|Hardware Library")
+	UFUNCTION(BlueprintPure, DisplayName = "Get RAM Info", Category = "Toolbox|Hardware Library")
 	static void GetRAMInfo(double& Total, double& Used, double& Available);
 	
-	UFUNCTION(BlueprintPure, Meta = (Keywords = "Resolution Screen"), Category = "Toolbox|Hardware Library")
+	UFUNCTION(BlueprintPure, Meta = (Keywords = "Screen"), Category = "Toolbox|Hardware Library")
 	static TArray<FDisplayAdapterScreenData> GetAvailableResolutions();
 
 	UFUNCTION(BlueprintPure, Meta = (BlueprintAutocast, DisplayName = "To String (GPUInfo)", CompactNodeTitle = "->", AutoCreateRefTerm = "InGPUInfo"), Category = "Toolbox|Hardware Library")

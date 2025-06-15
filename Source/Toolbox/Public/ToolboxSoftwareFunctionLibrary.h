@@ -8,13 +8,29 @@
 UENUM(BlueprintType)
 enum class EWindowModeType : uint8
 {
-	// Window is in true fullscreen mode
-	Fullscreen,
-	// Window has no border and takes up the entire area of the screen
-	WindowedFullscreen,
-	// Window has a border and may not take up the entire screen area
-	Windowed,
+	Fullscreen,			// Window is in true fullscreen mode
+	WindowedFullscreen, // Window has no border and takes up the entire area of the screen
+	Windowed,			// Window has a border and may not take up the entire screen area
 	Invalid UMETA(Hidden),
+};
+
+UENUM(BlueprintType)
+enum class EMessageSeverityType : uint8
+{
+	None UMETA(Hidden),
+	Error,
+	PerformanceWarning UMETA(Hidden),
+	Warning,
+	Info
+};
+
+UENUM(BlueprintType)
+enum class ENotificationSeverityType : uint8
+{
+	Info,
+	Warning,
+	Success,
+	Error
 };
 
 UCLASS()
@@ -72,14 +88,14 @@ public:
 	* Returns false if a Game has no focus.
 	* For example, Alt + Tabbed.
 	*/
-	UFUNCTION(BlueprintPure, Meta = (Keywords = "GPU Info Video"), Category = "Toolbox|Software Library")
+	UFUNCTION(BlueprintPure, Category = "Toolbox|Software Library")
 	static bool IsGameInForeground();
 
 	/**
 	* Flashes the game on the Task Bar
 	* @param bBackgroundOnly Flash the Game only if it is not focused/minimized
 	*/
-	UFUNCTION(BlueprintCallable, Meta = (Keywords = "Flash Attention Task Bar"), Category = "Toolbox|Software Library")
+	UFUNCTION(BlueprintCallable, Meta = (Keywords = "Draw Attention"), Category = "Toolbox|Software Library")
 	static void FlashGameOnTaskBar(const bool bBackgroundOnly);
 
 	/**
@@ -93,4 +109,17 @@ public:
 	*/
 	UFUNCTION(BlueprintPure, Category = "Toolbox|Software Library")
 	static EWindowModeType GetWindowMode();
+
+
+	/**
+	* Print Message to the Unreal's Message Log
+	*/
+	UFUNCTION(BlueprintCallable, Meta = (DevelopmentOnly), Category = "Toolbox|Software Library")
+	static void PrintMessageLog(const EMessageSeverityType Severity = EMessageSeverityType::Info, const FName LogCategory = "PIE", const FString Message = "Hello");
+
+	/**
+	* Show Notification in the Bottom Right corner
+	*/
+	UFUNCTION(BlueprintCallable, Meta = (DevelopmentOnly, AutoCreateRefTerm = "Message", AdvancedDisplay = "FadeInDuration, FadeOutDuration, Width"), Category = "Toolbox|Software Library")
+	static void ShowNotification(const ENotificationSeverityType Severity = ENotificationSeverityType::Info, const float Duration = 2.f, const float FadeInDuration = 0.5f, const float FadeOutDuration = 2.f, const float Width = 320.f, const FString Title = "Hello", const FString Message = "");
 };

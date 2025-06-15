@@ -3,6 +3,12 @@
 #include "ToolboxSoftwareFunctionLibrary.h"
 #include "HAL/PlatformApplicationMisc.h"
 #include "ToolboxHelpers.h"
+
+#if WITH_EDITOR
+#include "Framework/Notifications/NotificationManager.h"
+#include "Widgets/Notifications/SNotificationList.h"
+#endif
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ToolboxSoftwareFunctionLibrary)
 
 bool UToolboxSoftwareFunctionLibrary::IsInEditor()
@@ -138,4 +144,53 @@ EWindowModeType UToolboxSoftwareFunctionLibrary::GetWindowMode()
 	}
 
 	return EWindowModeType::Invalid;
+}
+
+void UToolboxSoftwareFunctionLibrary::PrintMessageLog(const EMessageSeverityType Severity, const FName LogCategory, const FString Message)
+{
+	#if WITH_EDITOR
+	if (!Message.IsEmpty())
+	{
+		FMessageLog PIELogger(LogCategory);
+		PIELogger.Message(static_cast<EMessageSeverity::Type>(Severity), FText::FromString(Message));
+	}
+	#endif
+}
+
+void UToolboxSoftwareFunctionLibrary::ShowNotification(const ENotificationSeverityType Severity, const float Duration, const float FadeInDuration, const float FadeOutDuration, const float Width, const FString Title, const FString Message)
+{
+	#if WITH_EDITOR
+	if (!Title.IsEmpty() && Duration > 0.f)
+	{
+		FNotificationInfo Info(FText::FromString(Title));
+		Info.ExpireDuration = Duration;
+
+		if (!Message.IsEmpty())
+		{
+			Info.SubText = FText::FromString(Message);
+		}
+
+		Info.FadeInDuration = FMath::Max<float>(FadeInDuration, 0.f);
+		Info.FadeOutDuration = FMath::Max<float>(FadeOutDuration, 0.f);
+		Info.WidthOverride = FMath::Max<float>(Width, 50.f);
+		Info.bFireAndForget = true;
+
+		switch (Severity)
+		{
+			case ENotificationSeverityType::Warning:
+				Info.Image = FAppStyle::Get().GetBrush(TEXT("Icons.WarningWithColor.Large"));
+				break;
+			case ENotificationSeverityType::Success:
+				Info.Image = FAppStyle::Get().GetBrush(TEXT("Icons.SuccessWithColor.Large"));
+				break;
+			case ENotificationSeverityType::Error:
+				Info.Image = FAppStyle::Get().GetBrush(TEXT("Icons.ErrorWithColor.Large"));
+				break;
+			default:
+				break;
+		}
+
+		FSlateNotificationManager::Get().AddNotification(Info);
+	}
+	#endif
 }

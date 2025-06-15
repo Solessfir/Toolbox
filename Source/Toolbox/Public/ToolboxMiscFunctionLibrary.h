@@ -17,15 +17,27 @@ public:
 	* @param Pawn Pawn to get Control Rotation from
 	* @return X = Pitch, Y = Yaw
 	*/
-	UFUNCTION(BlueprintPure, Meta = (Keywords = "Aim Offset"), Category = "Toolbox|Misc Library")
+	UFUNCTION(BlueprintPure, Category = "Toolbox|Misc Library")
 	static FVector2D GetAimOffset(const APawn* Pawn);
 	
-	UFUNCTION(BlueprintPure, Meta = (Keywords = "Screen Viewport Center"), Category = "Toolbox|Misc Library")
+	UFUNCTION(BlueprintPure, Meta = (Keywords = "Screen"), Category = "Toolbox|Misc Library")
 	static FVector2D GetViewportCenter();
 
-	UFUNCTION(BlueprintCallable, Meta = (Keywords = "View Mode"), Category = "Toolbox|Misc Library")
+	UFUNCTION(BlueprintCallable, Category = "Toolbox|Misc Library")
 	static void SetViewportViewMode(const EViewModeIndex ViewMode);
 
-	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject", Keywords = "Trace Camera View"), Category = "Toolbox|Misc Library")
+	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject"), Category = "Toolbox|Misc Library")
 	static void GetTraceVectorsFromCameraViewPoint(const UObject* WorldContextObject, FVector& TraceStart, FVector& TraceEnd, const double StartOffset, const double TraceDistance = 100.0);
+
+	/**
+	* Calculates World Location and Rotation for an object orbiting a central point
+	* @param OrbitalCenter World location to orbit around
+	* @param OrbitRadius Distance from center point (minimum 1 unit)
+	* @param ElevationAngle Vertical angle from horizon in degrees (+90 = above, -90 = below)
+	* @param AzimuthAngle Horizontal angle in degrees (0 = forward, 90 = right)
+	* @param Location Calculated World Location of orbiting object
+	* @param Rotation Calculated World Rotation facing orbital center
+	*/
+	UFUNCTION(BlueprintPure, Meta = (AutoCreateRefTerm = "OrbitalCenter", Keywords = "Rotate Around"), Category = "Toolbox|Misc Library")
+	static void CalculateOrbitalTransform(const FVector& OrbitalCenter, const float OrbitRadius, const float ElevationAngle, const float AzimuthAngle, FVector& Location, FRotator& Rotation);
 };
