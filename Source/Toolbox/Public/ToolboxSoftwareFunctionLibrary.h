@@ -15,16 +15,6 @@ enum class EWindowModeType : uint8
 };
 
 UENUM(BlueprintType)
-enum class EMessageSeverityType : uint8
-{
-	None UMETA(Hidden),
-	Error,
-	PerformanceWarning UMETA(Hidden),
-	Warning,
-	Info
-};
-
-UENUM(BlueprintType)
 enum class ENotificationSeverityType : uint8
 {
 	Info,
@@ -110,16 +100,21 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Toolbox|Software Library")
 	static EWindowModeType GetWindowMode();
 
-
 	/**
 	* Print Message to the Unreal's Message Log
 	*/
-	UFUNCTION(BlueprintCallable, Meta = (DevelopmentOnly), Category = "Toolbox|Software Library")
-	static void PrintMessageLog(const EMessageSeverityType Severity = EMessageSeverityType::Info, const FName LogCategory = "PIE", const FString Message = "Hello");
+	UFUNCTION(BlueprintCallable, Meta = (DevelopmentOnly, WorldContext = "WorldContextObject"), Category = "Toolbox|Software Library")
+	static void PrintMessageLog(const UObject* WorldContextObject, const ENotificationSeverityType Severity = ENotificationSeverityType::Info, const FName LogCategory = "PIE", const FString Message = "Hello");
 
 	/**
 	* Show Notification in the Bottom Right corner
 	*/
-	UFUNCTION(BlueprintCallable, Meta = (DevelopmentOnly, AutoCreateRefTerm = "Message", AdvancedDisplay = "FadeInDuration, FadeOutDuration, Width"), Category = "Toolbox|Software Library")
-	static void ShowNotification(const ENotificationSeverityType Severity = ENotificationSeverityType::Info, const float Duration = 2.f, const float FadeInDuration = 0.5f, const float FadeOutDuration = 2.f, const float Width = 320.f, const FString Title = "Hello", const FString Message = "");
+	UFUNCTION(BlueprintCallable, Meta = (DevelopmentOnly, WorldContext = "WorldContextObject", AutoCreateRefTerm = "Message", AdvancedDisplay = "FadeInDuration, FadeOutDuration, Width"), Category = "Toolbox|Software Library")
+	static void ShowNotification(const UObject* WorldContextObject, const ENotificationSeverityType Severity = ENotificationSeverityType::Info, const float Duration = 2.f, const float FadeInDuration = 0.5f, const float FadeOutDuration = 2.f, const float Width = 320.f, const FString Title = "Hello", const FString Message = "");
+
+	/**
+	* Rise Blueprint Exception
+	*/
+	UFUNCTION(BlueprintCallable, Meta = (DevelopmentOnly, WorldContext = "WorldContextObject", AutoCreateRefTerm = "Message", Keywords = "Unimplemented, Ensure, No Entry"))
+	static void BlueprintException(const UObject* WorldContextObject, const FString& Message);
 };

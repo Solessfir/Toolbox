@@ -17,7 +17,8 @@ public class Toolbox : ModuleRules
 			"RHI",
 			"RenderCore",
 			"Slate",
-			"SlateCore"
+			"SlateCore",
+			"UnrealEd"
 		]);
 	}
 }
