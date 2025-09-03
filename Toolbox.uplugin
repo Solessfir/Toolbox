@@ -23,6 +23,11 @@
 			"Name": "ToolboxEditor",
 			"Type": "Editor",
 			"LoadingPhase": "PreDefault"
+		},
+		{
+			"Name": "ToolboxUncooked",
+			"Type": "UncookedOnly",
+			"LoadingPhase": "PreDefault"
 		}
 	]
 }
