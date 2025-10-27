@@ -17,8 +17,12 @@ public class Toolbox : ModuleRules
 			"RHI",
 			"RenderCore",
 			"Slate",
-			"SlateCore",
-			"UnrealEd"
+			"SlateCore"
 		]);
+
+		if (Target.bBuildEditor)
+		{
+			PrivateDependencyModuleNames.Add("UnrealEd");
+		}
 	}
 }
