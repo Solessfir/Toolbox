@@ -6,7 +6,12 @@
 
 FGPUInfo UToolboxHardwareFunctionLibrary::GetGPUInfo()
 {
+	#if PLATFORM_WINDOWS
 	const FGPUDriverInfo& GPUDriverInfo = FPlatformMisc::GetGPUDriverInfo(GRHIAdapterName, false);
+	#elif PLATFORM_LINUX
+	FString DeviceDescription;
+	const FGPUDriverInfo& GPUDriverInfo = FPlatformMisc::GetGPUDriverInfo(DeviceDescription);
+	#endif
 
 	TArray<FString> DateArray;
 	GPUDriverInfo.DriverDate.ParseIntoArray(DateArray, TEXT("-"));
