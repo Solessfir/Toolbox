@@ -1,4 +1,4 @@
-﻿// Copyright Solessfir. All Rights Reserved.
+// Copyright Solessfir. All Rights Reserved.
 
 #include "ToolboxHardwareFunctionLibrary.h"
 #include "GenericPlatform/GenericPlatformDriver.h"
@@ -193,6 +193,7 @@ EGamepadTypes UToolboxHardwareFunctionLibrary::GetConnectedGamepadType()
 			return DetectedType;
 		}
 	}
+	return EGamepadTypes::None;
 	#elif PLATFORM_LINUX
 	EGamepadTypes DetectedType = EGamepadTypes::None;
 
@@ -212,13 +213,11 @@ EGamepadTypes UToolboxHardwareFunctionLibrary::GetConnectedGamepadType()
 		{
 			const uint16 VendorId = SDL_GetJoystickVendorForID(Joysticks[Index]);
 			DetectedType = DetermineGamepadTypeFromVID(VendorId);
-
 			if (DetectedType != EGamepadTypes::None)
 			{
 				break;
 			}
 		}
-
 		SDL_free(Joysticks);
 	}
 	return DetectedType;
