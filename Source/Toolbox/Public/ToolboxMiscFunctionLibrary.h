@@ -19,7 +19,7 @@ public:
 	*/
 	UFUNCTION(BlueprintPure, Category = "Toolbox|Misc Library")
 	static FVector2D GetAimOffset(const APawn* Pawn);
-	
+
 	UFUNCTION(BlueprintPure, Meta = (Keywords = "Screen"), Category = "Toolbox|Misc Library")
 	static FVector2D GetViewportCenter();
 

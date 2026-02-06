@@ -10,7 +10,7 @@ FVector2D UToolboxMiscFunctionLibrary::GetAimOffset(const APawn* Pawn)
 	{
 		return FVector2D::ZeroVector;
 	}
-	
+
 	// Inverse of Actor Transform matrix is an Actor's Direction in Local Space. This is what we want for the Aim offset
 	const FVector& ControlRotationDirection = Pawn->GetControlRotation().Vector();
 	const FVector& LocalDirection = Pawn->GetTransform().InverseTransformVectorNoScale(ControlRotationDirection);
@@ -24,7 +24,7 @@ FVector2D UToolboxMiscFunctionLibrary::GetViewportCenter()
 	{
 		return FVector2D::ZeroVector;
 	}
-	
+
 	FVector2D ViewportSize;
 	GEngine->GameViewport->GetViewportSize(ViewportSize);
 	return ViewportSize * 0.5;
@@ -46,7 +46,7 @@ void UToolboxMiscFunctionLibrary::GetTraceVectorsFromCameraViewPoint(const UObje
 	{
 		return;
 	}
-	
+
 	const FVector& CameraLocation = PlayerController->PlayerCameraManager->GetCameraLocation();
 	const FVector& CameraForwardVector = PlayerController->PlayerCameraManager->GetCameraRotation().Vector();
 

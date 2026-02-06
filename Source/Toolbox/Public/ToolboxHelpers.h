@@ -10,7 +10,7 @@ namespace ToolboxHelpers
 		{
 			return nullptr;
 		}
-	
+
 		return GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
 	}
 
@@ -30,7 +30,7 @@ namespace ToolboxHelpers
 		{
 			return PlayerController->GetNetConnection();
 		}
-	
+
 		return nullptr;
 	}
 }

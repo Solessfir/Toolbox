@@ -12,12 +12,12 @@ int32 UToolboxNetworkFunctionLibrary::GetPing(const UObject* WorldContextObject)
 	{
 		return 0;
 	}
-	
+
 	if (const APlayerState* PlayerState = PlayerController->GetPlayerState<APlayerState>())
 	{
 		return FMath::FloorToInt(PlayerState->GetPingInMilliseconds());
 	}
-	
+
 	return 0;
 }
 
@@ -27,7 +27,7 @@ EToolboxConnectionState UToolboxNetworkFunctionLibrary::GetConnectionState(const
 	{
 		return static_cast<EToolboxConnectionState>(NetConnection->GetConnectionState());
 	}
-	
+
 	return EToolboxConnectionState::Invalid;
 }
 

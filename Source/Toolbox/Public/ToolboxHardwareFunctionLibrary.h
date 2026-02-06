@@ -9,7 +9,7 @@ USTRUCT(BlueprintType)
 struct FGPUInfo
 {
 	GENERATED_BODY()
-	
+
 	FGPUInfo()
 		: ProviderName(FString("None"))
 		, DeviceDescription(FString("None"))
@@ -25,7 +25,7 @@ struct FGPUInfo
 		, DriverDate(FDateTime(InDriverDate))
 	{
 	}
-	
+
 	bool operator==(const FGPUInfo& Other) const
 	{
 		return ProviderName == Other.ProviderName && DeviceDescription == Other.DeviceDescription && UserDriverVersion == Other.UserDriverVersion && DriverDate == Other.DriverDate;
@@ -35,21 +35,21 @@ struct FGPUInfo
 	{
 		return !operator==(Other);
 	}
-	
+
 	friend uint32 GetTypeHash(const FGPUInfo& Other)
 	{
 		return FCrc::MemCrc32(&Other, sizeof(FGPUInfo));
 	}
-	
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FString ProviderName;
-	
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FString DeviceDescription;
-	
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	double UserDriverVersion;
-	
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FDateTime DriverDate;
 };
@@ -58,7 +58,7 @@ USTRUCT(BlueprintType)
 struct FDisplayAdapterScreenData
 {
 	GENERATED_BODY()
-	
+
 	FDisplayAdapterScreenData()
 		: Width(0)
 		, Height(0)
@@ -72,7 +72,7 @@ struct FDisplayAdapterScreenData
 		, RefreshRate(InRefreshRate)
 	{
 	}
-	
+
 	bool operator==(const FDisplayAdapterScreenData& Other) const
 	{
 		return Width == Other.Width && Height == Other.Height && RefreshRate == Other.RefreshRate;
@@ -82,7 +82,7 @@ struct FDisplayAdapterScreenData
 	{
 		return !operator==(Other);
 	}
-	
+
 	friend uint32 GetTypeHash(const FDisplayAdapterScreenData& Other)
 	{
 		return FCrc::MemCrc32(&Other, sizeof(FDisplayAdapterScreenData));
@@ -90,7 +90,7 @@ struct FDisplayAdapterScreenData
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	int32 Width;
-	
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	int32 Height;
 
@@ -130,13 +130,13 @@ public:
 	*/
 	UFUNCTION(BlueprintPure, DisplayName = "Get RAM Info", Category = "Toolbox|Hardware Library")
 	static void GetRAMInfo(double& Total,double& Available, double& SystemUsed, double& ProcessUsed);
-	
+
 	UFUNCTION(BlueprintPure, Meta = (Keywords = "Screen"), Category = "Toolbox|Hardware Library")
 	static TArray<FDisplayAdapterScreenData> GetAvailableResolutions();
 
 	UFUNCTION(BlueprintPure, Meta = (BlueprintAutocast, DisplayName = "To String (GPUInfo)", CompactNodeTitle = "->", AutoCreateRefTerm = "InGPUInfo"), Category = "Toolbox|Hardware Library")
 	static FString Conv_GPUInfoToString(const FGPUInfo& InGPUInfo);
-	
+
 	UFUNCTION(BlueprintPure, Meta = (BlueprintAutocast, DisplayName = "To String (DisplayAdapterScreenData)", CompactNodeTitle = "->", AutoCreateRefTerm = "InDisplayAdapterScreenData"), Category = "Toolbox|Hardware Library")
 	static FString Conv_DisplayAdapterScreenDataToString(const FDisplayAdapterScreenData& InDisplayAdapterScreenData);
 

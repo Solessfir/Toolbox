@@ -5,7 +5,7 @@
 #if PLATFORM_WINDOWS
 #include "Windows/WindowsHWrapper.h"
 #elif PLATFORM_LINUX
-#include <SDL3/SDL.h>
+#include "SDL3/SDL.h"
 #endif
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ToolboxHardwareFunctionLibrary)
 
@@ -52,18 +52,18 @@ TArray<FDisplayAdapterScreenData> UToolboxHardwareFunctionLibrary::GetAvailableR
 {
 	TArray<FDisplayAdapterScreenData> DisplayAdapterScreenData;
 	TArray<FScreenResolutionRHI> ScreenResolutions;
-	
+
 	if (!RHIGetAvailableResolutions(ScreenResolutions, false))
 	{
 		return DisplayAdapterScreenData;
 	}
-	
+
 	for (const auto& [Width, Height, RefreshRate] : ScreenResolutions)
 	{
 		// Exclude duplicates
 		DisplayAdapterScreenData.AddUnique(FDisplayAdapterScreenData(Width, Height, RefreshRate));
 	}
-	
+
 	return DisplayAdapterScreenData;
 }
 
@@ -193,9 +193,7 @@ EGamepadTypes UToolboxHardwareFunctionLibrary::GetConnectedGamepadType()
 			return DetectedType;
 		}
 	}
-
 	#elif PLATFORM_LINUX
-
 	EGamepadTypes DetectedType = EGamepadTypes::None;
 
 	// Initialize SDL Joystick subsystem if not already active

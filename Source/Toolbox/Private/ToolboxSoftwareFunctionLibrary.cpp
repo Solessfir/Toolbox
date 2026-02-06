@@ -60,7 +60,7 @@ int32 UToolboxSoftwareFunctionLibrary::GetFPS(const UObject* WorldContextObject)
 	{
 		return FMath::FloorToInt(1.f / World->GetDeltaSeconds());
 	}
-	
+
 	return 0;
 }
 
@@ -70,14 +70,14 @@ void UToolboxSoftwareFunctionLibrary::SetFrameRateCap(const int32 FrameRateCap)
 	{
 		return;
 	}
-	
+
 	if (FrameRateCap > 0)
 	{
 		GEngine->bUseFixedFrameRate = true;
 		GEngine->FixedFrameRate = FMath::Max<float>(static_cast<float>(FrameRateCap), 15.f);
 		return;
 	}
-	
+
 	GEngine->bUseFixedFrameRate = false;
 }
 
