@@ -98,6 +98,17 @@ struct FDisplayAdapterScreenData
 	int32 RefreshRate;
 };
 
+UENUM(BlueprintType)
+enum class EGamepadTypes : uint8
+{
+	None,
+	PS,		  // DualShock 4/5, DualSense
+	XBox,	  // Xbox 360, One, Series X|S, 8BitDo
+	Nintendo, // Switch Pro, JoyCons
+	Valve,	  // Steam Controller, Steam Deck
+	Nvidia	  // Shield Controller
+};
+
 UCLASS()
 class TOOLBOX_API UToolboxHardwareFunctionLibrary : public UBlueprintFunctionLibrary
 {
@@ -111,13 +122,14 @@ public:
 	static FString GetCPUInfo();
 
 	/**
-	* Returns RAM info in GB
-	* @param Total Total Physical RAM in GB
-	* @param Used Used Physical RAM in GB
-	* @param Available Available Physical RAM in GB
+	* Returns system and process RAM statistics in Gibibytes (GiB).
+	* @param Total			Total Physical RAM installed in the system.
+	* @param Available		Physical RAM currently available (System-wide).
+	* @param SystemUsed		Total RAM used by the OS and all apps.
+	* @param ProcessUsed	RAM used specifically by the Engine.
 	*/
 	UFUNCTION(BlueprintPure, DisplayName = "Get RAM Info", Category = "Toolbox|Hardware Library")
-	static void GetRAMInfo(double& Total, double& Used, double& Available);
+	static void GetRAMInfo(double& Total,double& Available, double& SystemUsed, double& ProcessUsed);
 	
 	UFUNCTION(BlueprintPure, Meta = (Keywords = "Screen"), Category = "Toolbox|Hardware Library")
 	static TArray<FDisplayAdapterScreenData> GetAvailableResolutions();
@@ -127,4 +139,7 @@ public:
 	
 	UFUNCTION(BlueprintPure, Meta = (BlueprintAutocast, DisplayName = "To String (DisplayAdapterScreenData)", CompactNodeTitle = "->", AutoCreateRefTerm = "InDisplayAdapterScreenData"), Category = "Toolbox|Hardware Library")
 	static FString Conv_DisplayAdapterScreenDataToString(const FDisplayAdapterScreenData& InDisplayAdapterScreenData);
+
+	UFUNCTION(BlueprintPure, Category = "Toolbox|Hardware Library")
+	static EGamepadTypes GetConnectedGamepadType();
 };
