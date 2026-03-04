@@ -30,6 +30,16 @@ public:
 	static void GetTraceVectorsFromCameraViewPoint(const UObject* WorldContextObject, FVector& TraceStart, FVector& TraceEnd, const double StartOffset, const double TraceDistance = 100.0);
 
 	/**
+	* Projects an Actor's world bounding box to screen space
+	* @param Actor Actor to project
+	* @param ScreenMin Top-left screen coordinate of the bounding box
+	* @param ScreenMax Bottom-right screen coordinate of the bounding box
+	* @return True if at least one corner of the bounding box is visible on screen
+	*/
+	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject", Keywords = "Screen Bounds UI HUD"), Category = "Toolbox|Misc Library")
+	static bool GetActorScreenBounds(const UObject* WorldContextObject, const AActor* Actor, FVector2D& ScreenMin, FVector2D& ScreenMax);
+
+	/**
 	* Calculates World Location and Rotation for an object orbiting a central point
 	* @param OrbitalCenter World location to orbit around
 	* @param OrbitRadius Distance from center point (minimum 1 unit)

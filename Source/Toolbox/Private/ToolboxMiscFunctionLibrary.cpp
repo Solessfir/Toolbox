@@ -54,6 +54,61 @@ void UToolboxMiscFunctionLibrary::GetTraceVectorsFromCameraViewPoint(const UObje
 	TraceEnd = TraceStart + CameraForwardVector * FMath::Max<double>(TraceDistance, 10.0);
 }
 
+bool UToolboxMiscFunctionLibrary::GetActorScreenBounds(const UObject* WorldContextObject, const AActor* Actor, FVector2D& ScreenMin, FVector2D& ScreenMax)
+{
+	if (!IsValid(Actor))
+	{
+		return false;
+	}
+
+	const APlayerController* PlayerController = ToolboxHelpers::GetLocalPlayerController(WorldContextObject);
+	if (!IsValid(PlayerController))
+	{
+		return false;
+	}
+
+	FVector Origin;
+	FVector Extent;
+	Actor->GetActorBounds(false, Origin, Extent);
+
+	const FVector Corners[8] =
+	{
+		Origin + FVector( Extent.X,  Extent.Y,  Extent.Z),
+		Origin + FVector( Extent.X,  Extent.Y, -Extent.Z),
+		Origin + FVector( Extent.X, -Extent.Y,  Extent.Z),
+		Origin + FVector( Extent.X, -Extent.Y, -Extent.Z),
+		Origin + FVector(-Extent.X,  Extent.Y,  Extent.Z),
+		Origin + FVector(-Extent.X,  Extent.Y, -Extent.Z),
+		Origin + FVector(-Extent.X, -Extent.Y,  Extent.Z),
+		Origin + FVector(-Extent.X, -Extent.Y, -Extent.Z),
+	};
+
+	ScreenMin = FVector2D(MAX_FLT);
+	ScreenMax = FVector2D(-MAX_FLT);
+
+	bool bAnyCornerOnScreen = false;
+	for (const FVector& Corner : Corners)
+	{
+		FVector2D ScreenPos;
+		if (PlayerController->ProjectWorldLocationToScreen(Corner, ScreenPos))
+		{
+			ScreenMin.X = FMath::Min(ScreenMin.X, ScreenPos.X);
+			ScreenMin.Y = FMath::Min(ScreenMin.Y, ScreenPos.Y);
+			ScreenMax.X = FMath::Max(ScreenMax.X, ScreenPos.X);
+			ScreenMax.Y = FMath::Max(ScreenMax.Y, ScreenPos.Y);
+			bAnyCornerOnScreen = true;
+		}
+	}
+
+	if (!bAnyCornerOnScreen)
+	{
+		ScreenMin = FVector2D::ZeroVector;
+		ScreenMax = FVector2D::ZeroVector;
+	}
+
+	return bAnyCornerOnScreen;
+}
+
 void UToolboxMiscFunctionLibrary::CalculateOrbitalTransform(const FVector& OrbitalCenter, const float OrbitRadius, const float ElevationAngle, const float AzimuthAngle, FVector& Location, FRotator& Rotation)
 {
 	const float ElevationRad = FMath::DegreesToRadians(ElevationAngle);
