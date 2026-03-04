@@ -61,7 +61,7 @@ public:
 	static int32 GetFPS(const UObject* WorldContextObject);
 
 	/**
-	* Set the desired FPS cap. Min 30 FPS
+	* Set the desired FPS cap
 	* @param FrameRateCap Set to 0 for uncapped FPS
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Toolbox|Software Library")

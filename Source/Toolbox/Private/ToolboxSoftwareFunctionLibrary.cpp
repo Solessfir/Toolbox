@@ -24,7 +24,7 @@ bool UToolboxSoftwareFunctionLibrary::IsInEditor()
 
 bool UToolboxSoftwareFunctionLibrary::IsShippingBuild()
 {
-	#if UE_BUILD_SHIPPING || UE_BUILD_TEST
+	#if UE_BUILD_SHIPPING
 	return true;
 	#else
 	return false;
@@ -58,7 +58,10 @@ int32 UToolboxSoftwareFunctionLibrary::GetFPS(const UObject* WorldContextObject)
 {
 	if (const UWorld* World = ToolboxHelpers::GetWorld(WorldContextObject))
 	{
-		return FMath::FloorToInt(1.f / World->GetDeltaSeconds());
+		if (World->GetDeltaSeconds() > SMALL_NUMBER)
+		{
+			return FMath::FloorToInt(1.f / World->GetDeltaSeconds());
+		}
 	}
 
 	return 0;
@@ -74,7 +77,7 @@ void UToolboxSoftwareFunctionLibrary::SetFrameRateCap(const int32 FrameRateCap)
 	if (FrameRateCap > 0)
 	{
 		GEngine->bUseFixedFrameRate = true;
-		GEngine->FixedFrameRate = FMath::Max<float>(static_cast<float>(FrameRateCap), 15.f);
+		GEngine->FixedFrameRate = FMath::Max<float>(static_cast<float>(FrameRateCap), 1.f);
 		return;
 	}
 
@@ -101,14 +104,17 @@ bool UToolboxSoftwareFunctionLibrary::IsGameInForeground()
 
 void UToolboxSoftwareFunctionLibrary::FlashGameOnTaskBar(const bool bBackgroundOnly)
 {
-	if (!GEngine)
+	if (!GEngine || !GEngine->GameViewport)
 	{
 		return;
 	}
 
 	if (!bBackgroundOnly || !IsGameInForeground())
 	{
-		GEngine->GameViewport->GetWindow()->DrawAttention(FWindowDrawAttentionParameters(EWindowDrawAttentionRequestType::UntilActivated));
+		if (const TSharedPtr<SWindow> Window = GEngine->GameViewport->GetWindow())
+		{
+			Window->DrawAttention(FWindowDrawAttentionParameters(EWindowDrawAttentionRequestType::UntilActivated));
+		}
 	}
 }
 
@@ -213,7 +219,7 @@ void UToolboxSoftwareFunctionLibrary::PrintMessageLog(const UObject* WorldContex
 
 	const auto NodeToken = FUObjectToken::Create(BlueprintNode, BlueprintNode ? BlueprintNode->GetNodeTitle(ENodeTitleType::ListView) : INVTEXT("Unknown"));
 	const auto GraphToken = FUObjectToken::Create(Graph, FText::FromString(GetNameSafe(Graph)));
-	const auto BlueprintToken = FUObjectToken::Create(BlueprintAsset, FText::FromString(BlueprintAsset->GetName()));
+	const auto BlueprintToken = FUObjectToken::Create(BlueprintAsset, FText::FromString(GetNameSafe(BlueprintAsset)));
 
 	NodeToken->OnMessageTokenActivated(Highlighter);
 	GraphToken->OnMessageTokenActivated(Highlighter);

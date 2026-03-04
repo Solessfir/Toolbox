@@ -4,7 +4,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-ULerpToAttachmentSocket_AsyncAction* ULerpToAttachmentSocket_AsyncAction::LerpToAttachmentSocket(USceneComponent* InComponent, const FName InTargetSocket, const FTransform InRelativeOffset, const float Duration)
+ULerpToAttachmentSocket_AsyncAction* ULerpToAttachmentSocket_AsyncAction::LerpToAttachmentSocket(USceneComponent* InComponent, const FName InTargetSocket, const FTransform InTargetTransform, const float Duration)
 {
     if (!InComponent)
     {
@@ -14,7 +14,7 @@ ULerpToAttachmentSocket_AsyncAction* ULerpToAttachmentSocket_AsyncAction::LerpTo
     ULerpToAttachmentSocket_AsyncAction* AsyncAction = NewObject<ULerpToAttachmentSocket_AsyncAction>();
     AsyncAction->SceneComponent = InComponent;
     AsyncAction->TargetSocket = InTargetSocket;
-    AsyncAction->TargetTransform = InRelativeOffset;
+    AsyncAction->TargetTransform = InTargetTransform;
     AsyncAction->Duration = FMath::Max(0.001f, Duration);
     return AsyncAction;
 }
@@ -39,8 +39,16 @@ void ULerpToAttachmentSocket_AsyncAction::Activate()
 
 void ULerpToAttachmentSocket_AsyncAction::Tick(float DeltaTime)
 {
-    if (!bActive || !SceneComponent)
+    if (!bActive)
     {
+        return;
+    }
+
+    if (!SceneComponent)
+    {
+        bActive = false;
+        OnFinished.Broadcast();
+        SetReadyToDestroy();
         return;
     }
 

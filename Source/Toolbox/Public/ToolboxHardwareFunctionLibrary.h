@@ -38,7 +38,11 @@ struct FGPUInfo
 
 	friend uint32 GetTypeHash(const FGPUInfo& Other)
 	{
-		return FCrc::MemCrc32(&Other, sizeof(FGPUInfo));
+		uint32 Hash = GetTypeHash(Other.ProviderName);
+		Hash = HashCombine(Hash, GetTypeHash(Other.DeviceDescription));
+		Hash = HashCombine(Hash, GetTypeHash(Other.UserDriverVersion));
+		Hash = HashCombine(Hash, GetTypeHash(Other.DriverDate.GetTicks()));
+		return Hash;
 	}
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)

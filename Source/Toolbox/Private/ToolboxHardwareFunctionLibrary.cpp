@@ -1,4 +1,4 @@
-// Copyright Solessfir. All Rights Reserved.
+﻿// Copyright Solessfir. All Rights Reserved.
 
 #include "ToolboxHardwareFunctionLibrary.h"
 #include "GenericPlatform/GenericPlatformDriver.h"
@@ -81,8 +81,8 @@ FString UToolboxHardwareFunctionLibrary::Conv_DisplayAdapterScreenDataToString(c
 	return FString::Format(TEXT("{0} x {1}, {2} Hz"),
 	TArray<FStringFormatArg>
 	{
-		InDisplayAdapterScreenData.Height,
 		InDisplayAdapterScreenData.Width,
+		InDisplayAdapterScreenData.Height,
 		InDisplayAdapterScreenData.RefreshRate
 	});
 }
@@ -127,39 +127,12 @@ EGamepadTypes UToolboxHardwareFunctionLibrary::GetConnectedGamepadType()
 		return EGamepadTypes::None;
 	}
 
-	TArray<char> DeviceNameBuffer;
-	DeviceNameBuffer.Reserve(256);
-
 	for (uint32 Index = 0; Index < DeviceCount; ++Index)
 	{
 		const auto& [hDevice, dwType] = DeviceList[Index];
 
 		if (dwType != RIM_TYPEHID)
 		{
-			continue;
-		}
-
-		// Get Device Name Length
-		uint32 NameLen = 0;
-		if (GetRawInputDeviceInfoA(hDevice, RIDI_DEVICENAME, nullptr, &NameLen) == static_cast<uint32>(-1))
-		{
-			continue;
-		}
-
-		// Resize buffer if needed
-		if (static_cast<uint32>(DeviceNameBuffer.Num()) < NameLen + 1)
-		{
-			DeviceNameBuffer.SetNumUninitialized(NameLen + 1, EAllowShrinking::No);
-		}
-
-		// Get Device Name
-		if (GetRawInputDeviceInfoA(hDevice, RIDI_DEVICENAME, DeviceNameBuffer.GetData(), &NameLen) == static_cast<uint32>(-1))
-		{
-			DWORD LastError = GetLastError();
-			if (LastError != ERROR_FILE_NOT_FOUND)
-			{
-				UE_LOGFMT(LogToolboxHardware, Warning, "Error reading device name (Code: {0}) | {1}:{2}", static_cast<uint32>(LastError), __FUNCTION__, __LINE__);
-			}
 			continue;
 		}
 
@@ -198,12 +171,10 @@ EGamepadTypes UToolboxHardwareFunctionLibrary::GetConnectedGamepadType()
 	EGamepadTypes DetectedType = EGamepadTypes::None;
 
 	// Initialize SDL Joystick subsystem if not already active
-	if (!SDL_WasInit(SDL_INIT_JOYSTICK))
+	const bool bInitializedSDL = !SDL_WasInit(SDL_INIT_JOYSTICK) && SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+	if (!bInitializedSDL && !SDL_WasInit(SDL_INIT_JOYSTICK))
 	{
-		if (!SDL_InitSubSystem(SDL_INIT_JOYSTICK))
-		{
-			return DetectedType;
-		}
+		return DetectedType;
 	}
 
 	int32 Count = 0;
@@ -219,6 +190,11 @@ EGamepadTypes UToolboxHardwareFunctionLibrary::GetConnectedGamepadType()
 			}
 		}
 		SDL_free(Joysticks);
+	}
+
+	if (bInitializedSDL)
+	{
+		SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
 	}
 	return DetectedType;
 	#else

@@ -20,7 +20,7 @@ FVector2D UToolboxMiscFunctionLibrary::GetAimOffset(const APawn* Pawn)
 
 FVector2D UToolboxMiscFunctionLibrary::GetViewportCenter()
 {
-	if (!GEngine)
+	if (!GEngine || !GEngine->GameViewport)
 	{
 		return FVector2D::ZeroVector;
 	}
@@ -59,12 +59,13 @@ void UToolboxMiscFunctionLibrary::CalculateOrbitalTransform(const FVector& Orbit
 	const float ElevationRad = FMath::DegreesToRadians(ElevationAngle);
 	const float AzimuthRad = FMath::DegreesToRadians(AzimuthAngle);
 
+	const float ClampedRadius = FMath::Max(OrbitRadius, 1.f);
 	const FVector RelativeLocation =
 	{
 		// Convert spherical coordinates (distance + angles) to Cartesian coordinates
-		FMath::Max(OrbitRadius, 1.f) * FMath::Cos(ElevationRad) * FMath::Cos(AzimuthRad),
-		FMath::Max(OrbitRadius, 1.f) * FMath::Cos(ElevationRad) * FMath::Sin(AzimuthRad),
-		FMath::Max(OrbitRadius, 1.f) * FMath::Sin(ElevationRad)
+		ClampedRadius * FMath::Cos(ElevationRad) * FMath::Cos(AzimuthRad),
+		ClampedRadius * FMath::Cos(ElevationRad) * FMath::Sin(AzimuthRad),
+		ClampedRadius * FMath::Sin(ElevationRad)
 	};
 
 	Location = OrbitalCenter + RelativeLocation;
