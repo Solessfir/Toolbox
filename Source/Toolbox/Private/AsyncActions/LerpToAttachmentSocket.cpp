@@ -1,6 +1,7 @@
 ﻿// Copyright Solessfir. All Rights Reserved.
 
 #include "AsyncActions/LerpToAttachmentSocket.h"
+#include "Components/SceneComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -29,7 +30,7 @@ void ULerpToAttachmentSocket_AsyncAction::Activate()
     }
 
     // Register with Game Instance to prevent Garbage Collection while Ticking
-    RegisterWithGameInstance(SceneComponent->GetWorld());
+    RegisterWithGameInstance(SceneComponent);
 
     // Attach immediately but keep World Position. This calculates the necessary Relative offset to the new Socket automatically
     SceneComponent->AttachToComponent(SceneComponent->GetAttachParent(), FAttachmentTransformRules::KeepWorldTransform, TargetSocket);
@@ -82,6 +83,6 @@ void ULerpToAttachmentSocket_AsyncAction::DrawDebugLocation(const float Radius, 
 {
     if (SceneComponent)
     {
-        UKismetSystemLibrary::DrawDebugSphere(SceneComponent->GetWorld(), SceneComponent->GetComponentLocation(), Radius, 12, Color, DrawDuration);
+        UKismetSystemLibrary::DrawDebugSphere(SceneComponent, SceneComponent->GetComponentLocation(), Radius, 12, Color, DrawDuration);
     }
 }

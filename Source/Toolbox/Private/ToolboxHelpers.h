@@ -2,6 +2,11 @@
 
 #pragma once
 
+#include "Engine/Engine.h"
+#include "Engine/LocalPlayer.h"
+#include "Engine/NetConnection.h"
+#include "GameFramework/PlayerController.h"
+
 namespace ToolboxHelpers
 {
 	inline const UWorld* GetWorld(const UObject* WorldContextObject)
@@ -14,7 +19,7 @@ namespace ToolboxHelpers
 		return GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
 	}
 
-	inline const APlayerController* GetLocalPlayerController(const UObject* WorldContextObject)
+	inline APlayerController* GetLocalPlayerController(const UObject* WorldContextObject)
 	{
 		if (const UWorld* World = GetWorld(WorldContextObject))
 		{

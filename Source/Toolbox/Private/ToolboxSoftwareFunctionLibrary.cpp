@@ -3,7 +3,11 @@
 #include "ToolboxSoftwareFunctionLibrary.h"
 #include "HAL/PlatformApplicationMisc.h"
 #include "ToolboxHelpers.h"
-
+#include "Engine/GameViewportClient.h"
+#include "Engine/World.h"
+#include "Misc/App.h"
+#include "RHI.h"
+#include "Widgets/SWindow.h"
 #if WITH_EDITOR
 #include "Framework/Notifications/NotificationManager.h"
 #include "Widgets/Notifications/SNotificationList.h"

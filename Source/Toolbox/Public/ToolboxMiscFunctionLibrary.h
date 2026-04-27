@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Engine/EngineBaseTypes.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "ToolboxMiscFunctionLibrary.generated.h"
 
@@ -50,4 +51,18 @@ public:
 	*/
 	UFUNCTION(BlueprintPure, Meta = (AutoCreateRefTerm = "OrbitalCenter", Keywords = "Rotate Around"), Category = "Toolbox|Misc Library")
 	static void CalculateOrbitalTransform(const FVector& OrbitalCenter, const float OrbitRadius, const float ElevationAngle, const float AzimuthAngle, FVector& Location, FRotator& Rotation);
+
+	/**
+	* Shows or hides the mouse cursor and adjusts input mode accordingly
+	*
+	* Common usage patterns:
+	* - FPS / pure game input:          bShowMouseCursor = false, bGameCapturesMouse = true  - no cursor, engine captures all clicks including first click after alt-tab
+	* - Diablo-style cursor + UI input: bShowMouseCursor = true,  bGameCapturesMouse = false - cursor visible, OS handles clicks normally, UI widgets react
+	* - Cursor visible, no UI input:    bShowMouseCursor = true,  bGameCapturesMouse = true  - cursor visible but engine steals clicks before UI gets them
+	*
+	* @param bShowMouseCursor Whether to show or hide the mouse cursor
+	* @param bGameCapturesMouse Whether window grab OS mouse on click
+	*/
+	UFUNCTION(BlueprintCallable, Meta = (WorldContext = "WorldContextObject"), Category = "Toolbox|Misc Library")
+	static void ShowMouseCursor(const UObject* WorldContextObject, const bool bShowMouseCursor, const bool bGameCapturesMouse = true);
 };

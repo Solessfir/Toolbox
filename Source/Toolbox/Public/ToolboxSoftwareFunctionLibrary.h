@@ -115,6 +115,6 @@ public:
 	/**
 	* Rise Blueprint Exception
 	*/
-	UFUNCTION(BlueprintCallable, Meta = (DevelopmentOnly, WorldContext = "WorldContextObject", AutoCreateRefTerm = "Message", Keywords = "Unimplemented, Ensure, No Entry"))
+	UFUNCTION(BlueprintCallable, Meta = (DevelopmentOnly, WorldContext = "WorldContextObject", AutoCreateRefTerm = "Message", Keywords = "Unimplemented, Ensure, No Entry"), Category = "Toolbox|Software Library")
 	static void BlueprintException(const UObject* WorldContextObject, const FString& Message);
 };

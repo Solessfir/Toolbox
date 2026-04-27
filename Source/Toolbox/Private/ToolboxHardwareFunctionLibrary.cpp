@@ -4,6 +4,8 @@
 #include "CommonInputSubsystem.h"
 #include "ToolboxHelpers.h"
 #include "GenericPlatform/GenericPlatformDriver.h"
+#include "Logging/StructuredLog.h"
+#include "RHI.h"
 #if PLATFORM_WINDOWS
 #include "Windows/WindowsHWrapper.h"
 #elif PLATFORM_LINUX

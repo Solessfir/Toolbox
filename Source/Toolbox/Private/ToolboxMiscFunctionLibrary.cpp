@@ -2,6 +2,8 @@
 
 #include "ToolboxMiscFunctionLibrary.h"
 #include "ToolboxHelpers.h"
+#include "Engine/GameViewportClient.h"
+#include "GameFramework/Pawn.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ToolboxMiscFunctionLibrary)
 
 FVector2D UToolboxMiscFunctionLibrary::GetAimOffset(const APawn* Pawn)
@@ -107,6 +109,40 @@ bool UToolboxMiscFunctionLibrary::GetActorScreenBounds(const UObject* WorldConte
 	}
 
 	return bAnyCornerOnScreen;
+}
+
+void UToolboxMiscFunctionLibrary::ShowMouseCursor(const UObject* WorldContextObject, const bool bShowMouseCursor, const bool bGameCapturesMouse)
+{
+	APlayerController* PlayerController = ToolboxHelpers::GetLocalPlayerController(WorldContextObject);
+	if (!IsValid(PlayerController))
+	{
+		return;
+	}
+
+	PlayerController->bShowMouseCursor = bShowMouseCursor;
+
+	if (bShowMouseCursor)
+	{
+		FInputModeGameAndUI InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
+		InputMode.SetHideCursorDuringCapture(false);
+		PlayerController->SetInputMode(InputMode);
+
+		if (!bGameCapturesMouse && GEngine && GEngine->GameViewport)
+		{
+			GEngine->GameViewport->SetMouseCaptureMode(EMouseCaptureMode::NoCapture);
+		}
+
+		return;
+	}
+
+	const FInputModeGameOnly InputMode;
+	PlayerController->SetInputMode(InputMode);
+
+	if (!bGameCapturesMouse && GEngine && GEngine->GameViewport)
+	{
+		GEngine->GameViewport->SetMouseCaptureMode(EMouseCaptureMode::CapturePermanently_IncludingInitialMouseDown);
+	}
 }
 
 void UToolboxMiscFunctionLibrary::CalculateOrbitalTransform(const FVector& OrbitalCenter, const float OrbitRadius, const float ElevationAngle, const float AzimuthAngle, FVector& Location, FRotator& Rotation)
