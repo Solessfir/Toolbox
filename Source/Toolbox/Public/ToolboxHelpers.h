@@ -6,7 +6,7 @@ namespace ToolboxHelpers
 {
 	inline const UWorld* GetWorld(const UObject* WorldContextObject)
 	{
-		if (!GEngine || !WorldContextObject)
+		if (!GEngine)
 		{
 			return nullptr;
 		}
@@ -19,6 +19,16 @@ namespace ToolboxHelpers
 		if (const UWorld* World = GetWorld(WorldContextObject))
 		{
 			return GEngine->GetFirstLocalPlayerController(World);
+		}
+
+		return nullptr;
+	}
+
+	inline const ULocalPlayer* GetLocalPlayer(const UObject* WorldContextObject)
+	{
+		if (const APlayerController* PlayerController = GetLocalPlayerController(WorldContextObject))
+		{
+			return PlayerController->GetLocalPlayer();
 		}
 
 		return nullptr;

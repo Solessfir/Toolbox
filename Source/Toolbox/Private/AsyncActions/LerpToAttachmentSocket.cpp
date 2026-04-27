@@ -4,7 +4,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-ULerpToAttachmentSocket_AsyncAction* ULerpToAttachmentSocket_AsyncAction::LerpToAttachmentSocket(USceneComponent* InComponent, const FName InTargetSocket, const FTransform InTargetTransform, const float Duration)
+ULerpToAttachmentSocket_AsyncAction* ULerpToAttachmentSocket_AsyncAction::LerpToAttachmentSocket(USceneComponent* InComponent, const FName InTargetSocket, const FTransform& InTargetTransform, const float Duration)
 {
     if (!InComponent)
     {

@@ -24,5 +24,11 @@
 			"Type": "Editor",
 			"LoadingPhase": "PreDefault"
 		}
-	]
+	],
+    "Plugins": [
+      {
+        "Name": "CommonUI",
+        "Enabled": true
+      }
+    ]
 }

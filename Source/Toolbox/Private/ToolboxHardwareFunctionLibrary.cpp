@@ -1,6 +1,8 @@
 ﻿// Copyright Solessfir. All Rights Reserved.
 
 #include "ToolboxHardwareFunctionLibrary.h"
+#include "CommonInputSubsystem.h"
+#include "ToolboxHelpers.h"
 #include "GenericPlatform/GenericPlatformDriver.h"
 #if PLATFORM_WINDOWS
 #include "Windows/WindowsHWrapper.h"
@@ -85,6 +87,16 @@ FString UToolboxHardwareFunctionLibrary::Conv_DisplayAdapterScreenDataToString(c
 		InDisplayAdapterScreenData.Height,
 		InDisplayAdapterScreenData.RefreshRate
 	});
+}
+
+bool UToolboxHardwareFunctionLibrary::IsUsingGamepad(const UObject* WorldContextObject)
+{
+	if (const UCommonInputSubsystem* CommonInputSubsystem = UCommonInputSubsystem::Get(ToolboxHelpers::GetLocalPlayer(WorldContextObject)))
+	{
+		return CommonInputSubsystem->GetCurrentInputType() == ECommonInputType::Gamepad;
+	}
+
+	return false;
 }
 
 EGamepadTypes UToolboxHardwareFunctionLibrary::GetConnectedGamepadType()

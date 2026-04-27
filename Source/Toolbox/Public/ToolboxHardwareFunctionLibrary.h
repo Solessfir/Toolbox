@@ -144,6 +144,9 @@ public:
 	UFUNCTION(BlueprintPure, Meta = (BlueprintAutocast, DisplayName = "To String (DisplayAdapterScreenData)", CompactNodeTitle = "->", AutoCreateRefTerm = "InDisplayAdapterScreenData"), Category = "Toolbox|Hardware Library")
 	static FString Conv_DisplayAdapterScreenDataToString(const FDisplayAdapterScreenData& InDisplayAdapterScreenData);
 
+	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject"), Category = "Toolbox|Hardware Library")
+	static bool IsUsingGamepad(const UObject* WorldContextObject);
+
 	UFUNCTION(BlueprintPure, Category = "Toolbox|Hardware Library")
 	static EGamepadTypes GetConnectedGamepadType();
 };

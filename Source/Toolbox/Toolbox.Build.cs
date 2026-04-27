@@ -16,6 +16,7 @@ public class Toolbox : ModuleRules
 			"Engine",
 			"RHI",
 			"RenderCore",
+			"CommonInput",
 			"Slate",
 			"SlateCore"
 		]);

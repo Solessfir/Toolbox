@@ -29,8 +29,8 @@ public:
     * @param InTargetTransform Desired final Relative Transform once attached to the target socket. Use zero for no offset
     * @param Duration How long the transition should take
     */
-    UFUNCTION(BlueprintCallable, Meta = (BlueprintInternalUseOnly = true, AdvancedDisplay = "InTargetTransform"), Category = "Transformation")
-    static ULerpToAttachmentSocket_AsyncAction* LerpToAttachmentSocket(USceneComponent* InComponent, const FName InTargetSocket, const FTransform InTargetTransform, const float Duration = 0.25f);
+    UFUNCTION(BlueprintCallable, Meta = (BlueprintInternalUseOnly = true, AdvancedDisplay = "InTargetTransform", AutoCreateRefTerm = "InTargetTransform"), DisplayName = "Lerp To Attachment Socket", Category = "Transformation")
+    static ULerpToAttachmentSocket_AsyncAction* LerpToAttachmentSocket(USceneComponent* InComponent, const FName InTargetSocket, const FTransform& InTargetTransform, const float Duration = 0.25f);
 
     UFUNCTION(BlueprintCallable, Category = "Transformation|Debug")
     void DrawDebugLocation(float Radius = 10.f, FLinearColor Color = FLinearColor::Red, float DrawDuration = 0.1f) const;
