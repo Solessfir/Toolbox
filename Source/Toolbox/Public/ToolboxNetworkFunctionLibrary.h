@@ -12,6 +12,7 @@ enum class EToolboxConnectionState : uint8
 	Closed,		// Connection permanently closed
 	Pending,	// Connection is awaiting connection
 	Open,		// Connection is open
+	Closing,	// Connection is closing while queued reliable data is acknowledged
 };
 
 UCLASS()

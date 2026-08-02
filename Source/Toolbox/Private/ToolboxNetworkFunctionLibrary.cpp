@@ -25,7 +25,15 @@ EToolboxConnectionState UToolboxNetworkFunctionLibrary::GetConnectionState(const
 {
 	if (const UNetConnection* NetConnection = ToolboxHelpers::GetNetConnection(WorldContextObject))
 	{
-		return static_cast<EToolboxConnectionState>(NetConnection->GetConnectionState());
+		switch (NetConnection->GetConnectionState())
+		{
+			case USOCK_Closed: return EToolboxConnectionState::Closed;
+			case USOCK_Pending: return EToolboxConnectionState::Pending;
+			case USOCK_Open: return EToolboxConnectionState::Open;
+			case USOCK_Closing: return EToolboxConnectionState::Closing;
+			case USOCK_Invalid:
+			default: return EToolboxConnectionState::Invalid;
+		}
 	}
 
 	return EToolboxConnectionState::Invalid;
@@ -33,6 +41,9 @@ EToolboxConnectionState UToolboxNetworkFunctionLibrary::GetConnectionState(const
 
 void UToolboxNetworkFunctionLibrary::GetPacketLoss(const UObject* WorldContextObject, float& Incoming, float& Outgoing)
 {
+	Incoming = 0.f;
+	Outgoing = 0.f;
+
 	if (const UNetConnection* NetConnection = ToolboxHelpers::GetNetConnection(WorldContextObject))
 	{
 		Incoming = NetConnection->GetInLossPercentage().GetAvgLossPercentage();
@@ -42,6 +53,9 @@ void UToolboxNetworkFunctionLibrary::GetPacketLoss(const UObject* WorldContextOb
 
 void UToolboxNetworkFunctionLibrary::GetPacketRate(const UObject* WorldContextObject, int32& Incoming, int32& Outgoing)
 {
+	Incoming = 0;
+	Outgoing = 0;
+
 	if (const UNetConnection* NetConnection = ToolboxHelpers::GetNetConnection(WorldContextObject))
 	{
 		Incoming = NetConnection->InPacketsPerSecond;
@@ -51,6 +65,9 @@ void UToolboxNetworkFunctionLibrary::GetPacketRate(const UObject* WorldContextOb
 
 void UToolboxNetworkFunctionLibrary::GetPacketSize(const UObject* WorldContextObject, float& Incoming, float& Outgoing)
 {
+	Incoming = 0.f;
+	Outgoing = 0.f;
+
 	if (const UNetConnection* NetConnection = ToolboxHelpers::GetNetConnection(WorldContextObject))
 	{
 		Incoming = NetConnection->InPacketsPerSecond > 0
@@ -75,6 +92,9 @@ int32 UToolboxNetworkFunctionLibrary::GetAcknowledgedPackets(const UObject* Worl
 
 void UToolboxNetworkFunctionLibrary::GetDelayedRPCs(const UObject* WorldContextObject, int32& RPCs, int32& Delay)
 {
+	RPCs = 0;
+	Delay = 0;
+
 	if (const UNetConnection* NetConnection = ToolboxHelpers::GetNetConnection(WorldContextObject))
 	{
 		RPCs = NetConnection->TotalDelayedRPCs;

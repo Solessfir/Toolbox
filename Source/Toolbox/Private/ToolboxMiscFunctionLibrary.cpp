@@ -3,6 +3,7 @@
 #include "ToolboxMiscFunctionLibrary.h"
 #include "ToolboxHelpers.h"
 #include "Engine/GameViewportClient.h"
+#include "Engine/World.h"
 #include "GameFramework/Pawn.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ToolboxMiscFunctionLibrary)
 
@@ -43,6 +44,9 @@ void UToolboxMiscFunctionLibrary::SetViewportViewMode(const EViewModeIndex ViewM
 
 void UToolboxMiscFunctionLibrary::GetTraceVectorsFromCameraViewPoint(const UObject* WorldContextObject, FVector& TraceStart, FVector& TraceEnd, const double StartOffset, const double TraceDistance)
 {
+	TraceStart = FVector::ZeroVector;
+	TraceEnd = FVector::ZeroVector;
+
 	const APlayerController* PlayerController = ToolboxHelpers::GetLocalPlayerController(WorldContextObject);
 	if (!IsValid(PlayerController) || !PlayerController->PlayerCameraManager)
 	{
@@ -58,6 +62,9 @@ void UToolboxMiscFunctionLibrary::GetTraceVectorsFromCameraViewPoint(const UObje
 
 bool UToolboxMiscFunctionLibrary::GetActorScreenBounds(const UObject* WorldContextObject, const AActor* Actor, FVector2D& ScreenMin, FVector2D& ScreenMax)
 {
+	ScreenMin = FVector2D::ZeroVector;
+	ScreenMax = FVector2D::ZeroVector;
+
 	if (!IsValid(Actor))
 	{
 		return false;
@@ -88,7 +95,7 @@ bool UToolboxMiscFunctionLibrary::GetActorScreenBounds(const UObject* WorldConte
 	ScreenMin = FVector2D(MAX_FLT);
 	ScreenMax = FVector2D(-MAX_FLT);
 
-	bool bAnyCornerOnScreen = false;
+	bool bAnyCornerProjected = false;
 	for (const FVector& Corner : Corners)
 	{
 		FVector2D ScreenPos;
@@ -98,17 +105,29 @@ bool UToolboxMiscFunctionLibrary::GetActorScreenBounds(const UObject* WorldConte
 			ScreenMin.Y = FMath::Min(ScreenMin.Y, ScreenPos.Y);
 			ScreenMax.X = FMath::Max(ScreenMax.X, ScreenPos.X);
 			ScreenMax.Y = FMath::Max(ScreenMax.Y, ScreenPos.Y);
-			bAnyCornerOnScreen = true;
+			bAnyCornerProjected = true;
 		}
 	}
 
-	if (!bAnyCornerOnScreen)
+	int32 ViewportWidth = 0;
+	int32 ViewportHeight = 0;
+	PlayerController->GetViewportSize(ViewportWidth, ViewportHeight);
+
+	const bool bBoundsIntersectViewport = bAnyCornerProjected
+		&& ViewportWidth > 0
+		&& ViewportHeight > 0
+		&& ScreenMax.X >= 0.f
+		&& ScreenMax.Y >= 0.f
+		&& ScreenMin.X <= static_cast<double>(ViewportWidth)
+		&& ScreenMin.Y <= static_cast<double>(ViewportHeight);
+
+	if (!bBoundsIntersectViewport)
 	{
 		ScreenMin = FVector2D::ZeroVector;
 		ScreenMax = FVector2D::ZeroVector;
 	}
 
-	return bAnyCornerOnScreen;
+	return bBoundsIntersectViewport;
 }
 
 void UToolboxMiscFunctionLibrary::ShowMouseCursor(const UObject* WorldContextObject, const bool bShowMouseCursor, const bool bGameCapturesMouse)
@@ -120,6 +139,7 @@ void UToolboxMiscFunctionLibrary::ShowMouseCursor(const UObject* WorldContextObj
 	}
 
 	PlayerController->bShowMouseCursor = bShowMouseCursor;
+	UGameViewportClient* GameViewport = PlayerController->GetWorld() ? PlayerController->GetWorld()->GetGameViewport() : nullptr;
 
 	if (bShowMouseCursor)
 	{
@@ -128,9 +148,9 @@ void UToolboxMiscFunctionLibrary::ShowMouseCursor(const UObject* WorldContextObj
 		InputMode.SetHideCursorDuringCapture(false);
 		PlayerController->SetInputMode(InputMode);
 
-		if (!bGameCapturesMouse && GEngine && GEngine->GameViewport)
+		if (GameViewport)
 		{
-			GEngine->GameViewport->SetMouseCaptureMode(EMouseCaptureMode::NoCapture);
+			GameViewport->SetMouseCaptureMode(bGameCapturesMouse ? EMouseCaptureMode::CaptureDuringMouseDown : EMouseCaptureMode::NoCapture);
 		}
 
 		return;
@@ -139,9 +159,9 @@ void UToolboxMiscFunctionLibrary::ShowMouseCursor(const UObject* WorldContextObj
 	const FInputModeGameOnly InputMode;
 	PlayerController->SetInputMode(InputMode);
 
-	if (!bGameCapturesMouse && GEngine && GEngine->GameViewport)
+	if (GameViewport)
 	{
-		GEngine->GameViewport->SetMouseCaptureMode(EMouseCaptureMode::CapturePermanently_IncludingInitialMouseDown);
+		GameViewport->SetMouseCaptureMode(bGameCapturesMouse ? EMouseCaptureMode::CapturePermanently_IncludingInitialMouseDown : EMouseCaptureMode::NoCapture);
 	}
 }
 

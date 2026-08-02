@@ -8,12 +8,14 @@ public class Toolbox : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.Add("Core");
+		PublicDependencyModuleNames.AddRange([
+			"Core",
+			"CoreUObject",
+			"Engine"
+		]);
 
 		PrivateDependencyModuleNames.AddRange([
-			"CoreUObject",
 			"ApplicationCore",
-			"Engine",
 			"RHI",
 			"RenderCore",
 			"CommonInput",

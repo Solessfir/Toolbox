@@ -3,9 +3,9 @@
 #include "ToolboxHardwareFunctionLibrary.h"
 #include "CommonInputSubsystem.h"
 #include "ToolboxHelpers.h"
-#include "GenericPlatform/GenericPlatformDriver.h"
 #include "Logging/StructuredLog.h"
 #include "RHI.h"
+#include "RHIStrings.h"
 #if PLATFORM_WINDOWS
 #include "Windows/WindowsHWrapper.h"
 #elif PLATFORM_LINUX
@@ -17,21 +17,22 @@ DEFINE_LOG_CATEGORY_STATIC(LogToolboxHardware, Log, All);
 
 FGPUInfo UToolboxHardwareFunctionLibrary::GetGPUInfo()
 {
-	#if PLATFORM_WINDOWS
-	const FGPUDriverInfo& GPUDriverInfo = FPlatformMisc::GetGPUDriverInfo(GRHIAdapterName, false);
-	#elif PLATFORM_LINUX
-	FString DeviceDescription;
-	const FGPUDriverInfo& GPUDriverInfo = FPlatformMisc::GetGPUDriverInfo(DeviceDescription);
-	#endif
-
 	TArray<FString> DateArray;
-	GPUDriverInfo.DriverDate.ParseIntoArray(DateArray, TEXT("-"));
+	GRHIAdapterDriverDate.ParseIntoArray(DateArray, TEXT("-"));
 
-	const FDateTime DriverDate = DateArray.Num() >= 3
-		? FDateTime(FCString::Atoi(*DateArray[2]), FCString::Atoi(*DateArray[0]), FCString::Atoi(*DateArray[1]))
-		: FDateTime();
+	FDateTime DriverDate;
+	if (DateArray.Num() >= 3)
+	{
+		const int32 Year = FCString::Atoi(*DateArray[2]);
+		const int32 Month = FCString::Atoi(*DateArray[0]);
+		const int32 Day = FCString::Atoi(*DateArray[1]);
+		if (FDateTime::Validate(Year, Month, Day, 0, 0, 0, 0))
+		{
+			DriverDate = FDateTime(Year, Month, Day);
+		}
+	}
 
-	return FGPUInfo(GPUDriverInfo.ProviderName, GPUDriverInfo.DeviceDescription, FCString::Atod(*GPUDriverInfo.UserDriverVersion), DriverDate);
+	return FGPUInfo(RHIVendorIdToString(), GRHIAdapterName, GRHIAdapterUserDriverVersion, DriverDate);
 }
 
 FString UToolboxHardwareFunctionLibrary::GetCPUInfo()
@@ -73,10 +74,10 @@ TArray<FDisplayAdapterScreenData> UToolboxHardwareFunctionLibrary::GetAvailableR
 
 FString UToolboxHardwareFunctionLibrary::Conv_GPUInfoToString(const FGPUInfo& InGPUInfo)
 {
-	return FString::Printf(TEXT("Provider: %s\nDevice: %s\nDriver Version: %.2lf\nDriver Date: %s")
+	return FString::Printf(TEXT("Provider: %s\nDevice: %s\nDriver Version: %s\nDriver Date: %s")
 		, *InGPUInfo.ProviderName
 		, *InGPUInfo.DeviceDescription
-		, InGPUInfo.UserDriverVersion
+		, *InGPUInfo.UserDriverVersion
 		, *InGPUInfo.DriverDate.ToFormattedString(TEXT("%d/%m/%Y")));
 }
 

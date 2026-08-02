@@ -78,14 +78,7 @@ void UToolboxSoftwareFunctionLibrary::SetFrameRateCap(const int32 FrameRateCap)
 		return;
 	}
 
-	if (FrameRateCap > 0)
-	{
-		GEngine->bUseFixedFrameRate = true;
-		GEngine->FixedFrameRate = FMath::Max<float>(static_cast<float>(FrameRateCap), 1.f);
-		return;
-	}
-
-	GEngine->bUseFixedFrameRate = false;
+	GEngine->SetMaxFPS(FMath::Max(FrameRateCap, 0));
 }
 
 void UToolboxSoftwareFunctionLibrary::GetThreadsTime(float& FrameTime, float& GameThreadTime, float& RenderThreadTime, float& RHIThreadTime, float& GPUFrameTime)
@@ -180,7 +173,7 @@ static const FBlueprintDebugData* GetDebugDataFor(const UBlueprintGeneratedClass
 void UToolboxSoftwareFunctionLibrary::PrintMessageLog(const UObject* WorldContextObject, const ENotificationSeverityType Severity, const FName LogCategory, const FString Message)
 {
 	#if WITH_EDITOR
-	if (Message.IsEmpty())
+	if (!WorldContextObject || Message.IsEmpty())
 	{
 		return;
 	}

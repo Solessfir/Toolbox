@@ -13,12 +13,12 @@ struct FGPUInfo
 	FGPUInfo()
 		: ProviderName(FString("None"))
 		, DeviceDescription(FString("None"))
-		, UserDriverVersion(0.0)
+		, UserDriverVersion(FString("None"))
 		, DriverDate(FDateTime())
 	{
 	}
 
-	explicit FGPUInfo(const FString& InProviderName, const FString& InDeviceDescription, const double InUserDriverVersion, const FDateTime& InDriverDate)
+	explicit FGPUInfo(const FString& InProviderName, const FString& InDeviceDescription, const FString& InUserDriverVersion, const FDateTime& InDriverDate)
 		: ProviderName(InProviderName)
 		, DeviceDescription(InDeviceDescription)
 		, UserDriverVersion(InUserDriverVersion)
@@ -52,7 +52,7 @@ struct FGPUInfo
 	FString DeviceDescription;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Display Adapter")
-	double UserDriverVersion;
+	FString UserDriverVersion;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Display Adapter")
 	FDateTime DriverDate;
