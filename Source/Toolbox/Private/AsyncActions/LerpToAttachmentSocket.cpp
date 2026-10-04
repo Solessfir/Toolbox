@@ -33,7 +33,14 @@ void ULerpToAttachmentSocket_AsyncAction::Activate()
     RegisterWithGameInstance(SceneComponent);
 
     // Attach immediately but keep World Position. This calculates the necessary Relative offset to the new Socket automatically
-    SceneComponent->AttachToComponent(SceneComponent->GetAttachParent(), FAttachmentTransformRules::KeepWorldTransform, TargetSocket);
+    if (!SceneComponent->AttachToComponent(SceneComponent->GetAttachParent(), FAttachmentTransformRules::KeepWorldTransform, TargetSocket))
+    {
+        bActive = false;
+        OnFinished.Broadcast();
+        SetReadyToDestroy();
+        return;
+    }
+
     StartTransformRelative = SceneComponent->GetRelativeTransform();
     bActive = true;
 }
@@ -72,6 +79,11 @@ void ULerpToAttachmentSocket_AsyncAction::Tick(float DeltaTime)
 bool ULerpToAttachmentSocket_AsyncAction::IsTickable() const
 {
     return bActive && !HasAnyFlags(RF_BeginDestroyed);
+}
+
+UWorld* ULerpToAttachmentSocket_AsyncAction::GetTickableGameObjectWorld() const
+{
+    return SceneComponent ? SceneComponent->GetWorld() : nullptr;
 }
 
 TStatId ULerpToAttachmentSocket_AsyncAction::GetStatId() const

@@ -55,7 +55,7 @@ public:
 	static bool IsInEditorPreviewWindow(const UObject* WorldContextObject);
 
 	/**
-	* Returns current Game FPS
+	* Returns the engine's smoothed measured FPS.
 	*/
 	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject", CompactNodeTitle = "FPS"), Category = "Toolbox|Software Library")
 	static int32 GetFPS(const UObject* WorldContextObject);

@@ -35,7 +35,7 @@ public:
 	* @param Actor Actor to project
 	* @param ScreenMin Top-left screen coordinate of the bounding box
 	* @param ScreenMax Bottom-right screen coordinate of the bounding box
-	* @return True if at least one corner of the bounding box is visible on screen
+	* @return True if the projected bounds overlap the first local player's view
 	*/
 	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject", Keywords = "Screen Bounds UI HUD"), Category = "Toolbox|Misc Library")
 	static bool GetActorScreenBounds(const UObject* WorldContextObject, const AActor* Actor, FVector2D& ScreenMin, FVector2D& ScreenMax);

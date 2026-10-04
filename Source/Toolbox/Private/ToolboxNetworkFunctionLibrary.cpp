@@ -98,6 +98,6 @@ void UToolboxNetworkFunctionLibrary::GetDelayedRPCs(const UObject* WorldContextO
 	if (const UNetConnection* NetConnection = ToolboxHelpers::GetNetConnection(WorldContextObject))
 	{
 		RPCs = NetConnection->TotalDelayedRPCs;
-		Delay = NetConnection->TotalDelayedRPCsFrameCount;
+		Delay = RPCs > 0 ? NetConnection->TotalDelayedRPCsFrameCount / RPCs : 0;
 	}
 }

@@ -2,11 +2,14 @@
 
 #include "ToolboxSoftwareFunctionLibrary.h"
 #include "HAL/PlatformApplicationMisc.h"
+#include "HAL/IConsoleManager.h"
 #include "ToolboxHelpers.h"
 #include "Engine/GameViewportClient.h"
 #include "Engine/World.h"
 #include "Misc/App.h"
 #include "RHI.h"
+#include "Slate/SceneViewport.h"
+#include "UnrealEngine.h"
 #include "Widgets/SWindow.h"
 #if WITH_EDITOR
 #include "Framework/Notifications/NotificationManager.h"
@@ -60,12 +63,11 @@ bool UToolboxSoftwareFunctionLibrary::IsInEditorPreviewWindow(const UObject* Wor
 
 int32 UToolboxSoftwareFunctionLibrary::GetFPS(const UObject* WorldContextObject)
 {
-	if (const UWorld* World = ToolboxHelpers::GetWorld(WorldContextObject))
+	extern ENGINE_API float GAverageFPS;
+
+	if (ToolboxHelpers::GetWorld(WorldContextObject))
 	{
-		if (World->GetDeltaSeconds() > SMALL_NUMBER)
-		{
-			return FMath::FloorToInt(1.f / World->GetDeltaSeconds());
-		}
+		return FMath::FloorToInt(GAverageFPS);
 	}
 
 	return 0;
@@ -128,9 +130,11 @@ void UToolboxSoftwareFunctionLibrary::SetWindowMode(const EWindowModeType Mode)
 		return;
 	}
 
-	if (SWindow* Window = ViewportClient->GetWindow().Get())
+	if (ViewportClient->Viewport && ViewportClient->GetWindow().IsValid())
 	{
-		Window->SetWindowMode(static_cast<EWindowMode::Type>(Mode));
+		const FIntPoint ViewportSize = ViewportClient->Viewport->GetSizeXY();
+		FSystemResolution::RequestResolutionChange(ViewportSize.X, ViewportSize.Y, static_cast<EWindowMode::Type>(Mode));
+		IConsoleManager::Get().CallAllConsoleVariableSinks();
 	}
 }
 

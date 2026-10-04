@@ -5,6 +5,8 @@
 #include "Engine/GameViewportClient.h"
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
+#include "SceneView.h"
+#include "Slate/SceneViewport.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ToolboxMiscFunctionLibrary)
 
 FVector2D UToolboxMiscFunctionLibrary::GetAimOffset(const APawn* Pawn)
@@ -76,6 +78,18 @@ bool UToolboxMiscFunctionLibrary::GetActorScreenBounds(const UObject* WorldConte
 		return false;
 	}
 
+	const ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer();
+	FSceneViewProjectionData ProjectionData;
+	if (!LocalPlayer || !LocalPlayer->ViewportClient
+		|| !LocalPlayer->GetProjectionData(LocalPlayer->ViewportClient->Viewport, ProjectionData)
+		|| !ProjectionData.IsValidViewRectangle())
+	{
+		return false;
+	}
+
+	const FIntRect& ViewRect = ProjectionData.GetConstrainedViewRect();
+	const FMatrix ViewProjectionMatrix = ProjectionData.ComputeViewProjectionMatrix();
+
 	FVector Origin;
 	FVector Extent;
 	Actor->GetActorBounds(false, Origin, Extent);
@@ -95,31 +109,54 @@ bool UToolboxMiscFunctionLibrary::GetActorScreenBounds(const UObject* WorldConte
 	ScreenMin = FVector2D(MAX_FLT);
 	ScreenMax = FVector2D(-MAX_FLT);
 
-	bool bAnyCornerProjected = false;
-	for (const FVector& Corner : Corners)
+	bool bAnyPointProjected = false;
+	const auto AddProjectedPoint = [&](const FVector& WorldPoint)
 	{
 		FVector2D ScreenPos;
-		if (PlayerController->ProjectWorldLocationToScreen(Corner, ScreenPos))
+		if (FSceneView::ProjectWorldToScreen(WorldPoint, ViewRect, ViewProjectionMatrix, ScreenPos)
+			&& PlayerController->PostProcessWorldToScreen(WorldPoint, ScreenPos, false))
 		{
 			ScreenMin.X = FMath::Min(ScreenMin.X, ScreenPos.X);
 			ScreenMin.Y = FMath::Min(ScreenMin.Y, ScreenPos.Y);
 			ScreenMax.X = FMath::Max(ScreenMax.X, ScreenPos.X);
 			ScreenMax.Y = FMath::Max(ScreenMax.Y, ScreenPos.Y);
-			bAnyCornerProjected = true;
+			bAnyPointProjected = true;
+		}
+	};
+
+	double NearPlaneDistances[8];
+	for (int32 CornerIndex = 0; CornerIndex < 8; ++CornerIndex)
+	{
+		const FVector4 ClipPosition = ViewProjectionMatrix.TransformFVector4(FVector4(Corners[CornerIndex], 1.0));
+		// Reversed Z places the near plane at Z = W for perspective and orthographic projections.
+		NearPlaneDistances[CornerIndex] = ClipPosition.W - ClipPosition.Z;
+		if (NearPlaneDistances[CornerIndex] >= 0.0)
+		{
+			AddProjectedPoint(Corners[CornerIndex]);
 		}
 	}
 
-	int32 ViewportWidth = 0;
-	int32 ViewportHeight = 0;
-	PlayerController->GetViewportSize(ViewportWidth, ViewportHeight);
+	constexpr int32 Edges[12][2] =
+	{
+		{0, 1}, {0, 2}, {0, 4}, {1, 3}, {1, 5}, {2, 3},
+		{2, 6}, {3, 7}, {4, 5}, {4, 6}, {5, 7}, {6, 7}
+	};
+	for (const auto& Edge : Edges)
+	{
+		const double StartDistance = NearPlaneDistances[Edge[0]];
+		const double EndDistance = NearPlaneDistances[Edge[1]];
+		if ((StartDistance >= 0.0) != (EndDistance >= 0.0))
+		{
+			const double Alpha = StartDistance / (StartDistance - EndDistance);
+			AddProjectedPoint(FMath::Lerp(Corners[Edge[0]], Corners[Edge[1]], Alpha));
+		}
+	}
 
-	const bool bBoundsIntersectViewport = bAnyCornerProjected
-		&& ViewportWidth > 0
-		&& ViewportHeight > 0
-		&& ScreenMax.X >= 0.f
-		&& ScreenMax.Y >= 0.f
-		&& ScreenMin.X <= static_cast<double>(ViewportWidth)
-		&& ScreenMin.Y <= static_cast<double>(ViewportHeight);
+	const bool bBoundsIntersectViewport = bAnyPointProjected
+		&& ScreenMax.X >= static_cast<double>(ViewRect.Min.X)
+		&& ScreenMax.Y >= static_cast<double>(ViewRect.Min.Y)
+		&& ScreenMin.X <= static_cast<double>(ViewRect.Max.X)
+		&& ScreenMin.Y <= static_cast<double>(ViewRect.Max.Y);
 
 	if (!bBoundsIntersectViewport)
 	{

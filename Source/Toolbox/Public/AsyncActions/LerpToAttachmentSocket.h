@@ -20,14 +20,17 @@ public:
 
     virtual bool IsTickable() const override;
 
+    virtual UWorld* GetTickableGameObjectWorld() const override;
+
     virtual TStatId GetStatId() const override;
 
     /**
     * Smoothly lerps a Scene Component to a new socket on its current parent
+    * Completes immediately if the attachment is rejected
     * @param InComponent Component to move
     * @param InTargetSocket Socket name on the Parent to Attach to
     * @param InTargetTransform Desired final Relative Transform once attached to the target socket. Use zero for no offset
-    * @param Duration How long the transition should take
+    * @param Duration Transition length in game time, respecting world pause and time dilation
     */
     UFUNCTION(BlueprintCallable, Meta = (BlueprintInternalUseOnly = true, AdvancedDisplay = "InTargetTransform", AutoCreateRefTerm = "InTargetTransform"), DisplayName = "Lerp To Attachment Socket", Category = "Transformation")
     static ULerpToAttachmentSocket_AsyncAction* LerpToAttachmentSocket(USceneComponent* InComponent, const FName InTargetSocket, const FTransform& InTargetTransform, const float Duration = 0.25f);
