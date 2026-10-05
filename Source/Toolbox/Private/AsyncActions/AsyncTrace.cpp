@@ -6,39 +6,36 @@
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
+#include "KismetTraceUtils.h"
 #include "PhysicsEngine/PhysicsSettings.h"
 #include "UObject/StrongObjectPtr.h"
 
-UAsyncTrace_AsyncAction* UAsyncTrace_AsyncAction::Create(const UObject* WorldContextObject, const FVector& Start, const FVector& End, const FCollisionShape& Shape, const FQuat& Rotation, EToolboxAsyncTraceType TraceMode, bool bTraceComplex, const TArray<AActor*>& ActorsToIgnore, bool bIgnoreSelf)
+void UAsyncTraceBase_AsyncAction::Initialize(const UObject* WorldContextObject, const FVector& Start, const FVector& End, const FCollisionShape& Shape, const FQuat& Rotation, EAsyncTraceType TraceMode, bool bTraceComplex, const TArray<AActor*>& ActorsToIgnore, bool bIgnoreSelf, EDrawDebugTrace::Type InDrawDebugType, FLinearColor InTraceColor, FLinearColor InTraceHitColor, float InDrawTime)
 {
-    UAsyncTrace_AsyncAction* Action = NewObject<UAsyncTrace_AsyncAction>();
     UWorld* World = GEngine ? GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::ReturnNull) : nullptr;
-    Action->TraceWorld = World;
-    Action->TraceStart = Start;
-    Action->TraceEnd = End;
-    Action->TraceShape = Shape;
-    Action->TraceRotation = Rotation;
-    Action->bValidRequest = IsValid(World) && World->GetGameInstance() && !Start.ContainsNaN() && !End.ContainsNaN() && !Rotation.ContainsNaN();
+    TraceWorld = World;
+    TraceStart = Start;
+    TraceEnd = End;
+    TraceShape = Shape;
+    TraceRotation = Rotation;
+    NativeTraceType = TraceMode;
+    DrawDebugType = InDrawDebugType;
+    TraceColor = InTraceColor;
+    TraceHitColor = InTraceHitColor;
+    DrawTime = FMath::IsFinite(InDrawTime) ? FMath::Max(0.f, InDrawTime) : 0.f;
+    bValidRequest = IsValid(World) && World->GetGameInstance() && !Start.ContainsNaN() && !End.ContainsNaN() && !Rotation.ContainsNaN();
 
-    switch (TraceMode)
-    {
-        case EToolboxAsyncTraceType::Test: Action->NativeTraceType = EAsyncTraceType::Test; break;
-        case EToolboxAsyncTraceType::Single: Action->NativeTraceType = EAsyncTraceType::Single; break;
-        case EToolboxAsyncTraceType::Multi: Action->NativeTraceType = EAsyncTraceType::Multi; break;
-        default: Action->bValidRequest = false; break;
-    }
-
-    Action->QueryParams = FCollisionQueryParams(SCENE_QUERY_STAT(ToolboxAsyncTrace), bTraceComplex);
-    Action->QueryParams.bReturnPhysicalMaterial = true;
-    Action->QueryParams.bReturnFaceIndex = !UPhysicsSettings::Get()->bSuppressFaceRemapTable;
-    Action->QueryParams.AddIgnoredActors(ActorsToIgnore);
+    QueryParams = FCollisionQueryParams(SCENE_QUERY_STAT(ToolboxAsyncTrace), bTraceComplex);
+    QueryParams.bReturnPhysicalMaterial = true;
+    QueryParams.bReturnFaceIndex = !UPhysicsSettings::Get()->bSuppressFaceRemapTable;
+    QueryParams.AddIgnoredActors(ActorsToIgnore);
     if (bIgnoreSelf)
     {
         for (const UObject* Object = WorldContextObject; Object; Object = Object->GetOuter())
         {
             if (const AActor* Actor = Cast<AActor>(Object))
             {
-                Action->QueryParams.AddIgnoredActor(Actor);
+                QueryParams.AddIgnoredActor(Actor);
                 break;
             }
         }
@@ -46,20 +43,19 @@ UAsyncTrace_AsyncAction* UAsyncTrace_AsyncAction::Create(const UObject* WorldCon
 
     if (IsValid(World))
     {
-        Action->RegisterWithGameInstance(World->GetGameInstance());
-        Action->WorldCleanupHandle = FWorldDelegates::OnWorldCleanup.AddUObject(Action, &UAsyncTrace_AsyncAction::HandleWorldCleanup);
+        RegisterWithGameInstance(World->GetGameInstance());
+        WorldCleanupHandle = FWorldDelegates::OnWorldCleanup.AddUObject(this, &UAsyncTraceBase_AsyncAction::HandleWorldCleanup);
     }
-    return Action;
 }
 
-void UAsyncTrace_AsyncAction::SetTraceChannel(ETraceTypeQuery Channel)
+void UAsyncTraceBase_AsyncAction::SetTraceChannel(ETraceTypeQuery Channel)
 {
     Filter = EFilter::Channel;
     TraceChannel = UEngineTypes::ConvertToCollisionChannel(Channel);
     bValidRequest &= TraceChannel < ECC_MAX;
 }
 
-void UAsyncTrace_AsyncAction::SetObjectTypes(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes)
+void UAsyncTraceBase_AsyncAction::SetObjectTypes(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes)
 {
     Filter = EFilter::Object;
     for (const EObjectTypeQuery ObjectType : ObjectTypes)
@@ -77,7 +73,7 @@ void UAsyncTrace_AsyncAction::SetObjectTypes(const TArray<TEnumAsByte<EObjectTyp
     bValidRequest &= ObjectParams.IsValid();
 }
 
-void UAsyncTrace_AsyncAction::SetProfileName(FName Name)
+void UAsyncTraceBase_AsyncAction::SetProfileName(FName Name)
 {
     Filter = EFilter::Profile;
     ProfileName = Name;
@@ -86,7 +82,7 @@ void UAsyncTrace_AsyncAction::SetProfileName(FName Name)
     bValidRequest &= UCollisionProfile::Get()->GetChannelAndResponseParams(Name, Channel, ResponseParams);
 }
 
-void UAsyncTrace_AsyncAction::Activate()
+void UAsyncTraceBase_AsyncAction::Activate()
 {
     if (bActivated || bFinished)
     {
@@ -101,7 +97,7 @@ void UAsyncTrace_AsyncAction::Activate()
         return;
     }
 
-    const FTraceDelegate Delegate = FTraceDelegate::CreateUObject(this, &UAsyncTrace_AsyncAction::HandleTraceCompleted);
+    const FTraceDelegate Delegate = FTraceDelegate::CreateUObject(this, &UAsyncTraceBase_AsyncAction::HandleTraceCompleted);
     // Native sweeps dispatch line shapes as raycasts, so all shapes share the same submission path.
     switch (Filter)
     {
@@ -117,7 +113,7 @@ void UAsyncTrace_AsyncAction::Activate()
     }
 }
 
-void UAsyncTrace_AsyncAction::HandleTraceCompleted(const FTraceHandle& Handle, FTraceDatum& Data)
+void UAsyncTraceBase_AsyncAction::HandleTraceCompleted(const FTraceHandle& Handle, FTraceDatum& Data)
 {
     if (!bFinished && ShouldBroadcastDelegates())
     {
@@ -129,40 +125,27 @@ void UAsyncTrace_AsyncAction::HandleTraceCompleted(const FTraceHandle& Handle, F
     }
 }
 
-void UAsyncTrace_AsyncAction::Finish(bool bFailed, const TArray<FHitResult>& Hits)
+void UAsyncTraceBase_AsyncAction::Finish(bool bFailed, const TArray<FHitResult>& Hits)
 {
     if (bFinished)
     {
         return;
     }
-    const TStrongObjectPtr<UAsyncTrace_AsyncAction> KeepAlive(this);
+    const TStrongObjectPtr<UAsyncTraceBase_AsyncAction> KeepAlive(this);
     bFinished = true;
     FWorldDelegates::OnWorldCleanup.Remove(WorldCleanupHandle);
     WorldCleanupHandle.Reset();
 
-    if (bFailed)
+    const bool bHit = !bFailed && (Filter == EFilter::Object ? !Hits.IsEmpty() : Hits.ContainsByPredicate([](const FHitResult& Hit) { return Hit.bBlockingHit; }));
+    if (!bFailed)
     {
-        OnFailed.Broadcast(false, FHitResult(), {});
+        DrawDebug(Hits, bHit);
     }
-    else
-    {
-        const FHitResult* BlockingHit = Hits.FindByPredicate([](const FHitResult& Hit) { return Hit.bBlockingHit; });
-        const bool bHit = Filter == EFilter::Object ? !Hits.IsEmpty() : BlockingHit != nullptr;
-        if (NativeTraceType == EAsyncTraceType::Test)
-        {
-            // Test results contain only a synthetic blocking flag, not usable hit geometry.
-            OnCompleted.Broadcast(bHit, FHitResult(), {});
-        }
-        else
-        {
-            const FHitResult OutHit = BlockingHit ? *BlockingHit : (Hits.IsEmpty() ? FHitResult(TraceStart, TraceEnd) : Hits[0]);
-            OnCompleted.Broadcast(bHit, OutHit, Hits);
-        }
-    }
+    BroadcastResult(bFailed, bHit, Hits);
     SetReadyToDestroy();
 }
 
-void UAsyncTrace_AsyncAction::Cancel()
+void UAsyncTraceBase_AsyncAction::Cancel()
 {
     bFinished = true;
     FWorldDelegates::OnWorldCleanup.Remove(WorldCleanupHandle);
@@ -170,10 +153,90 @@ void UAsyncTrace_AsyncAction::Cancel()
     Super::Cancel();
 }
 
-void UAsyncTrace_AsyncAction::HandleWorldCleanup(UWorld* World, bool bSessionEnded, bool bCleanupResources)
+void UAsyncTraceBase_AsyncAction::HandleWorldCleanup(UWorld* World, bool bSessionEnded, bool bCleanupResources)
 {
     if (World == TraceWorld.Get())
     {
         Cancel();
     }
+}
+
+void UAsyncTraceBase_AsyncAction::DrawDebug(const TArray<FHitResult>& Hits, bool bHit) const
+{
+#if ENABLE_DRAW_DEBUG
+    const UWorld* World = TraceWorld.Get();
+    if (!IsValid(World) || World->bIsTearingDown || DrawDebugType == EDrawDebugTrace::None)
+    {
+        return;
+    }
+
+    // Test queries have no impact geometry, so color the whole path instead of drawing synthetic hits.
+    const bool bTest = NativeTraceType == EAsyncTraceType::Test;
+    const FLinearColor DebugTraceColor = bTest && bHit ? TraceHitColor : TraceColor;
+    const bool bDrawHit = !bTest && bHit;
+    const FHitResult OutHit = bTest || Hits.IsEmpty() ? FHitResult() : Hits[0];
+    const bool bMulti = NativeTraceType == EAsyncTraceType::Multi;
+
+    if (TraceShape.IsNearlyZero())
+    {
+        if (bMulti)
+        {
+            DrawDebugLineTraceMulti(World, TraceStart, TraceEnd, DrawDebugType, bDrawHit, Hits, DebugTraceColor, TraceHitColor, DrawTime);
+        }
+        else
+        {
+            DrawDebugLineTraceSingle(World, TraceStart, TraceEnd, DrawDebugType, bDrawHit, OutHit, DebugTraceColor, TraceHitColor, DrawTime);
+        }
+    }
+    else if (TraceShape.IsSphere())
+    {
+        if (bMulti)
+        {
+            DrawDebugSphereTraceMulti(World, TraceStart, TraceEnd, TraceShape.GetSphereRadius(), DrawDebugType, bDrawHit, Hits, DebugTraceColor, TraceHitColor, DrawTime);
+        }
+        else
+        {
+            DrawDebugSphereTraceSingle(World, TraceStart, TraceEnd, TraceShape.GetSphereRadius(), DrawDebugType, bDrawHit, OutHit, DebugTraceColor, TraceHitColor, DrawTime);
+        }
+    }
+    else if (TraceShape.IsCapsule())
+    {
+        if (bMulti)
+        {
+            DrawDebugCapsuleTraceMulti(World, TraceStart, TraceEnd, TraceShape.GetCapsuleRadius(), TraceShape.GetCapsuleHalfHeight(), DrawDebugType, bDrawHit, Hits, DebugTraceColor, TraceHitColor, DrawTime);
+        }
+        else
+        {
+            DrawDebugCapsuleTraceSingle(World, TraceStart, TraceEnd, TraceShape.GetCapsuleRadius(), TraceShape.GetCapsuleHalfHeight(), DrawDebugType, bDrawHit, OutHit, DebugTraceColor, TraceHitColor, DrawTime);
+        }
+    }
+    else if (TraceShape.IsBox())
+    {
+        if (bMulti)
+        {
+            DrawDebugBoxTraceMulti(World, TraceStart, TraceEnd, TraceShape.GetBox(), TraceRotation.Rotator(), DrawDebugType, bDrawHit, Hits, DebugTraceColor, TraceHitColor, DrawTime);
+        }
+        else
+        {
+            DrawDebugBoxTraceSingle(World, TraceStart, TraceEnd, TraceShape.GetBox(), TraceRotation.Rotator(), DrawDebugType, bDrawHit, OutHit, DebugTraceColor, TraceHitColor, DrawTime);
+        }
+    }
+#endif
+}
+
+void UAsyncTrace_AsyncAction::BroadcastResult(bool bFailed, bool bHit, const TArray<FHitResult>& Hits)
+{
+    const FHitResult* BlockingHit = Hits.FindByPredicate([](const FHitResult& Hit) { return Hit.bBlockingHit; });
+    const FHitResult OutHit = bFailed ? FHitResult() : (BlockingHit ? *BlockingHit : (Hits.IsEmpty() ? FHitResult(TraceStart, TraceEnd) : Hits[0]));
+    OnCompleted.Broadcast(bHit, OutHit);
+}
+
+void UAsyncMultiTrace_AsyncAction::BroadcastResult(bool bFailed, bool bHit, const TArray<FHitResult>& Hits)
+{
+    OnCompleted.Broadcast(bHit, Hits);
+}
+
+void UAsyncTestTrace_AsyncAction::BroadcastResult(bool bFailed, bool bHit, const TArray<FHitResult>& Hits)
+{
+    OnCompleted.Broadcast(bHit);
 }

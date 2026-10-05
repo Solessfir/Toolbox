@@ -112,9 +112,4 @@ public:
 	UFUNCTION(BlueprintCallable, Meta = (DevelopmentOnly, WorldContext = "WorldContextObject", AutoCreateRefTerm = "Message", AdvancedDisplay = "FadeInDuration, FadeOutDuration, Width"), Category = "Toolbox|Software Library")
 	static void ShowNotification(const UObject* WorldContextObject, const ENotificationSeverityType Severity = ENotificationSeverityType::Info, const float Duration = 2.f, const float FadeInDuration = 0.5f, const float FadeOutDuration = 2.f, const float Width = 320.f, const FString Title = "Hello", const FString Message = "");
 
-	/**
-	* Rise Blueprint Exception
-	*/
-	UFUNCTION(BlueprintCallable, Meta = (DevelopmentOnly, WorldContext = "WorldContextObject", AutoCreateRefTerm = "Message", Keywords = "Unimplemented, Ensure, No Entry"), Category = "Toolbox|Software Library")
-	static void BlueprintException(const UObject* WorldContextObject, const FString& Message);
 };

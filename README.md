@@ -17,8 +17,8 @@ Get `Toolbox.zip` from the [releases](https://github.com/Solessfir/Toolbox/relea
 - **Network statistics:** Ping, connection state, packet loss, packet rates and sizes, and delayed RPCs.
 - **Viewport and window utilities:** Actor screen bounds, viewport center, view modes, window modes, and mouse cursor control.
 - **Gameplay helpers:** Aim offsets, camera trace vectors, orbital transforms, and smooth interpolation between attachment sockets.
-- **Async traces:** Line, sphere, capsule, and box queries by channel, profile, or object type, with Single, Multi, and Test modes and cancellation.
-- **Debugging tools:** Message logs, editor notifications, and Blueprint exceptions.
+- **Async traces:** Separate Single, Multi, and Test nodes for line, sphere, capsule, and box queries by channel, profile, or object type, with cancellation.
+- **Debugging tools:** Message logs and editor notifications.
 
 ## License
 

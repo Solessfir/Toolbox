@@ -5,7 +5,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-ULerpToAttachmentSocket_AsyncAction* ULerpToAttachmentSocket_AsyncAction::LerpToAttachmentSocket(USceneComponent* InComponent, const FName InTargetSocket, const FTransform& InTargetTransform, const float Duration)
+ULerpToAttachmentSocket_AsyncAction* ULerpToAttachmentSocket_AsyncAction::LerpToAttachmentSocket(USceneComponent* InComponent, const FName InTargetSocket, const FTransform& InTargetTransform, const float Duration, const bool bDrawDebug, const float DebugRadius, const FLinearColor DebugColor, const float DebugDrawDuration)
 {
     if (!InComponent)
     {
@@ -17,6 +17,10 @@ ULerpToAttachmentSocket_AsyncAction* ULerpToAttachmentSocket_AsyncAction::LerpTo
     AsyncAction->TargetSocket = InTargetSocket;
     AsyncAction->TargetTransform = InTargetTransform;
     AsyncAction->Duration = FMath::Max(0.001f, Duration);
+    AsyncAction->bDrawDebug = bDrawDebug;
+    AsyncAction->DebugRadius = DebugRadius;
+    AsyncAction->DebugColor = DebugColor;
+    AsyncAction->DebugDrawDuration = DebugDrawDuration;
     return AsyncAction;
 }
 
@@ -66,6 +70,10 @@ void ULerpToAttachmentSocket_AsyncAction::Tick(float DeltaTime)
     // DualQuatInterp is used for smoother Rotation handling
     const FTransform CurrentRelTransform = UKismetMathLibrary::TLerp(StartTransformRelative, TargetTransform, Alpha, ELerpInterpolationMode::DualQuatInterp);
     SceneComponent->SetRelativeTransform(CurrentRelTransform);
+    if (bDrawDebug)
+    {
+        UKismetSystemLibrary::DrawDebugSphere(SceneComponent, SceneComponent->GetComponentLocation(), DebugRadius, 12, DebugColor, DebugDrawDuration);
+    }
     OnUpdated.Broadcast();
 
     if (Alpha >= 1.f)
@@ -89,12 +97,4 @@ UWorld* ULerpToAttachmentSocket_AsyncAction::GetTickableGameObjectWorld() const
 TStatId ULerpToAttachmentSocket_AsyncAction::GetStatId() const
 {
     RETURN_QUICK_DECLARE_CYCLE_STAT(ULerpToAttachmentSocket_AsyncAction, STATGROUP_Tickables);
-}
-
-void ULerpToAttachmentSocket_AsyncAction::DrawDebugLocation(const float Radius, const FLinearColor Color, const float DrawDuration) const
-{
-    if (SceneComponent)
-    {
-        UKismetSystemLibrary::DrawDebugSphere(SceneComponent, SceneComponent->GetComponentLocation(), Radius, 12, Color, DrawDuration);
-    }
 }

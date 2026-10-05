@@ -14,15 +14,12 @@
 #if WITH_EDITOR
 #include "Framework/Notifications/NotificationManager.h"
 #include "Widgets/Notifications/SNotificationList.h"
-#include "Blueprint/BlueprintExceptionInfo.h"
-#include "Kismet2/KismetDebugUtilities.h"
+#include "Engine/BlueprintGeneratedClass.h"
 #include "Kismet2/KismetEditorUtilities.h"
 #include "Misc/UObjectToken.h"
 #endif
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ToolboxSoftwareFunctionLibrary)
-
-DEFINE_LOG_CATEGORY_STATIC(LogBlueprintException, Log, All);
 
 bool UToolboxSoftwareFunctionLibrary::IsInEditor()
 {
@@ -320,40 +317,5 @@ void UToolboxSoftwareFunctionLibrary::ShowNotification(const UObject* WorldConte
     }
 
     FSlateNotificationManager::Get().AddNotification(Info);
-	#endif
-}
-
-void UToolboxSoftwareFunctionLibrary::BlueprintException(const UObject* WorldContextObject, const FString& Message)
-{
-	#if WITH_EDITOR
-	if (!WorldContextObject)
-	{
-		return;
-	}
-
-	ShowNotification(WorldContextObject, ENotificationSeverityType::Error, 2.f, 0.5f, 2.f, 320.f, TEXT("Blueprint Exception"), Message);
-
-	// Throw in Editor BP exception if possible
-	const TArrayView<FFrame* const>& ScriptStack = FBlueprintContextTracker::Get().GetCurrentScriptStackWritable();
-	if (ScriptStack.Num() > 0 && ScriptStack.Last())
-	{
-		FFrame* StackFrame = ScriptStack.Last();
-		const UClass* ClassContainingCode = FKismetDebugUtilities::FindClassForNode(WorldContextObject, StackFrame->Node);
-		if (UBlueprint* Blueprint = ClassContainingCode ? Cast<UBlueprint>(ClassContainingCode->ClassGeneratedBy) : nullptr)
-		{
-			Blueprint->SetObjectBeingDebugged(const_cast<UObject*>(WorldContextObject));
-			if (!GIsAutomationTesting)
-			{
-				// FText::GetEmpty because we handle Notification ourselves in ShowNotification. Otherwise, we'll get two notifications
-				const FBlueprintExceptionInfo ExceptionInfo(EBlueprintExceptionType::Breakpoint, FText::GetEmpty());
-				FBlueprintCoreDelegates::ThrowScriptException(WorldContextObject, *StackFrame, ExceptionInfo);
-			}
-		}
-
-		UE_LOG(LogBlueprintException, Error, TEXT("%s"), *StackFrame->GetStackTrace());
-	}
-	#else
-	UE_LOG(LogBlueprintException, Error, TEXT("%s"), *Message);
-	ensureAlwaysMsgf(false, TEXT("%s"), *Message);
 	#endif
 }

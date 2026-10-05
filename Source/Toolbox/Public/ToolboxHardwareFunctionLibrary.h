@@ -45,16 +45,16 @@ struct FGPUInfo
 		return Hash;
 	}
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Display Adapter")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Toolbox|Display Adapter")
 	FString ProviderName;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Display Adapter")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Toolbox|Display Adapter")
 	FString DeviceDescription;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Display Adapter")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Toolbox|Display Adapter")
 	FString UserDriverVersion;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Display Adapter")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Toolbox|Display Adapter")
 	FDateTime DriverDate;
 };
 
@@ -92,13 +92,13 @@ struct FDisplayAdapterScreenData
 		return FCrc::MemCrc32(&Other, sizeof(FDisplayAdapterScreenData));
 	}
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Screen Data")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Toolbox|Screen Data")
 	int32 Width;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Screen Data")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Toolbox|Screen Data")
 	int32 Height;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Screen Data")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Toolbox|Screen Data")
 	int32 RefreshRate;
 };
 
